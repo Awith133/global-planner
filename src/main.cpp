@@ -349,7 +349,7 @@ int main() {
     auto pit_interior_points = g.get_pit_interior_coordinates();
     const auto pit_edges = get_pit_edges(map,pit_bounding_box,threshold,pit_interior_points);
     /// Pit interior needs to be implemented by you! You won't be given this. Just using ground truth as of now
-    convert_vector_to_csv(pit_edges,"../../data/trial_pit_edges.csv");
+    convert_vector_to_csv(pit_edges,"data/trial_pit_edges.csv");
     convert_vector_to_csv(pit_interior_points,"../../data/trial_pit_interior.csv");
     ///Temporary changes made here. Pit interior points are externally given and not obtained in the get_pit_edges function. Revert back.
 
@@ -362,7 +362,7 @@ int main() {
     const double standard_deviation_threshold{.5};
     cout<<"Size of pit_interior_points is"<<pit_interior_points.size()<<endl;
     auto way_points = generate_way_points(pit_edges,map,threshold_dist_from_pit,pit_interior_points);
-    convert_vector_to_csv(way_points,"../../data/trial_way_points.csv");
+    convert_vector_to_csv(way_points,"data/trial_way_points.csv");
 
     for(const auto &p: way_points)
     {
@@ -402,12 +402,15 @@ int main() {
 //    }
 
 ///  Multi Goal A* Planning for illuminated coordinates
-    way_points = make_coordinate_vector_from_csv("../../data/trial_way_points.csv");
+    way_points = make_coordinate_vector_from_csv("data/trial_way_points.csv");
+    cout<<way_points.size()<<endl;
     start_coordinate = goal_coordinate;
     double time_per_step = 700;
     double present_time = 0;
     int present_time_index = 0;
-    auto lit_waypoint_time_data = convert_csv_to_vector("../../data/lit_waypoints.csv");
+    cout<<"OUT"<<endl;
+    auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
+    cout<<lit_waypoint_time_data.size()<<endl;
     double final_time_index = lit_waypoint_time_data[0].size();
     unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
     while(present_time_index<500)     /// TODO: Remove this -3000 just for testing purposes
