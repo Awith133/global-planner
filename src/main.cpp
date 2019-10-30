@@ -349,8 +349,8 @@ int main() {
     auto pit_interior_points = g.get_pit_interior_coordinates();
     const auto pit_edges = get_pit_edges(map,pit_bounding_box,threshold,pit_interior_points);
     /// Pit interior needs to be implemented by you! You won't be given this. Just using ground truth as of now
-    convert_vector_to_csv(pit_edges,"trial_pit_edges.csv");
-    convert_vector_to_csv(pit_interior_points,"trial_pit_interior.csv");
+    convert_vector_to_csv(pit_edges,"../../data/trial_pit_edges.csv");
+    convert_vector_to_csv(pit_interior_points,"../../data/trial_pit_interior.csv");
     ///Temporary changes made here. Pit interior points are externally given and not obtained in the get_pit_edges function. Revert back.
 
 //    for(auto pit_edge:pit_edges) //Validate pit edge
@@ -358,26 +358,17 @@ int main() {
 //        cout<<pit_edge.x<<"\t"<<pit_edge.y<<endl;
 //    }
 
-    // Use the pit edges. Run a DFS from each of the vertices | Validate if that state is within the map and also is not
-    // a pit edge or in the interior of pit. If it's distance is less than 'x' keep it in the reject_set, if it's 'x' add it to
-    // to the accept set. Also keep checking if the new vertex being encountered has a distance less than x and that state is in
-    // the accept_set. Remove it from there.
-    // Add the pit edge and the pit interior points in the reject list
-
     const int threshold_dist_from_pit{1};
     const double standard_deviation_threshold{.5};
     cout<<"Size of pit_interior_points is"<<pit_interior_points.size()<<endl;
     auto way_points = generate_way_points(pit_edges,map,threshold_dist_from_pit,pit_interior_points);
-    convert_vector_to_csv(way_points,"trial_way_points.csv");
+    convert_vector_to_csv(way_points,"../../data/trial_way_points.csv");
 
     for(const auto &p: way_points)
     {
         g.way_points.emplace_back(p);
     }
-    /// There are known fallacies with depth>=2. This is because we need to elimninate those waypoints as well which maybe
-    /// 2 or more depth away from point A but then come close to some other point. A check has been put in place for this,
-    /// but the issue is that if the closer vertex is already expanded, then that check fails. Work on this if need be
-    /// because as of now we deal with depth==1 only
+
     g.display_final_map();
 //    g.way_points.clear();
 //    auto quarter_waypoints = get_quarter_waypoints(way_points,pit_bounding_box,map,standard_deviation_threshold);
@@ -411,12 +402,12 @@ int main() {
 //    }
 
 ///  Multi Goal A* Planning for illuminated coordinates
-    way_points = make_coordinate_vector_from_csv("/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Create_Global_Waypoints/Python_Viz/illumination_test_waypoints.csv");
+    way_points = make_coordinate_vector_from_csv("../../data/trial_way_points.csv");
     start_coordinate = goal_coordinate;
     double time_per_step = 700;
     double present_time = 0;
     int present_time_index = 0;
-    auto lit_waypoint_time_data = convert_csv_to_vector("/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Create_Global_Waypoints/Python_Viz/lit_waypoints.csv");
+    auto lit_waypoint_time_data = convert_csv_to_vector("../../data/lit_waypoints.csv");
     double final_time_index = lit_waypoint_time_data[0].size();
     unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
     while(present_time_index<500)     /// TODO: Remove this -3000 just for testing purposes

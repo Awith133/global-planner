@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Global_Planner"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Global_Planner">
+				<Option output="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug/Global_Planner" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 Global_Planner"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Global_Planner/fast">
+				<Option output="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug/Global_Planner" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 Global_Planner/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/harsh/Desktop/CMU_Sem_3/MRSD\ Project\ II/Global_Planner/src/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/MGA_config.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/b_box.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/coordinate.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/coordinate.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/global_map.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/global_map.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/main.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/map_width_header.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/mga_node.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/mga_node.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/node.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/node.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/planning_map.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/planning_map.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/rover_parameters.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/utility.cpp">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/utility.h">
+			<Option target="Global_Planner"/>
+		</Unit>
+		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
