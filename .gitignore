@@ -43,3 +43,6 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 Global_Planner
+
+.DS_Store
+*.mp4
