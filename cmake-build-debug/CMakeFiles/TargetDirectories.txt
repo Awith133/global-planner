@@ -1,3 +1,0 @@
-/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Create_Global_Waypoints/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Create_Global_Waypoints/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Create_Global_Waypoints/cmake-build-debug/CMakeFiles/Create_Global_Waypoints.dir

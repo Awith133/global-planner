@@ -350,7 +350,7 @@ int main() {
     const auto pit_edges = get_pit_edges(map,pit_bounding_box,threshold,pit_interior_points);
     /// Pit interior needs to be implemented by you! You won't be given this. Just using ground truth as of now
     convert_vector_to_csv(pit_edges,"data/trial_pit_edges.csv");
-    convert_vector_to_csv(pit_interior_points,"../../data/trial_pit_interior.csv");
+    convert_vector_to_csv(pit_interior_points,"data/trial_pit_interior.csv");
     ///Temporary changes made here. Pit interior points are externally given and not obtained in the get_pit_edges function. Revert back.
 
 //    for(auto pit_edge:pit_edges) //Validate pit edge
@@ -408,12 +408,15 @@ int main() {
     double time_per_step = 700;
     double present_time = 0;
     int present_time_index = 0;
-    cout<<"OUT"<<endl;
     auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
     cout<<lit_waypoint_time_data.size()<<endl;
     double final_time_index = lit_waypoint_time_data[0].size();
     unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
-    while(present_time_index<500)     /// TODO: Remove this -3000 just for testing purposes
+    vector<tuple<int,int,int>> time_location;
+    auto previous_coordinate = start_coordinate;
+    time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y));
+
+    while(present_time_index<final_time_index)     /// TODO: Remove this -3000 just for testing purposes
     {
         cout<<"At present_time_index: "<<present_time_index<<endl;
         cout<<"Start Position: "<<"\t";
@@ -426,25 +429,30 @@ int main() {
         auto mga_result = get_path_to_vantage_point(g.g_map,MIN_ELEVATION,MAX_ELEVATION+10,start_coordinate,goal_coordinates,time_remaining_to_lose_vantage_point_status,rover_config);
         auto stop = std::chrono::high_resolution_clock::now();
         auto time_taken_to_plan = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-//        cout<<"Planning time: "<<time_taken_to_plan.count()<<endl;
         present_time+= static_cast<double>(time_taken_to_plan.count());
         if(mga_result.path.empty())
         {
-//            present_time_index = ceil(present_time/time_per_step);
             present_time_index +=1;
             cout<<"Path Empty"<<endl;
+            time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y));
+            present_time = present_time_index*time_per_step;            //This line makes the code: 1 point per time frame
             continue;
         }
         present_time+= mga_result.time_to_reach_best_goal;
         g.path = mga_result.path;       ///This needs to be sent to the local planner
         present_time_index = ceil(present_time/time_per_step);
+        cout<<"present_time_index: "<<present_time_index<<endl;
+        present_time = present_time_index*time_per_step;                //This line makes the code: 1 point per time frame
         const auto best_goal_coordinate = g.path[g.path.size()-1];
+        time_location.emplace_back(make_tuple(present_time_index,best_goal_coordinate.x,best_goal_coordinate.y));
+        previous_coordinate = best_goal_coordinate;
         visited_waypoints.insert(best_goal_coordinate);
         goal_coordinate = best_goal_coordinate;
-        cout<<"Present_time_index: "<<present_time_index<<endl;
-        g.display_final_map(start_coordinate,goal_coordinate);
+//        g.display_final_map(start_coordinate,goal_coordinate);
         start_coordinate = goal_coordinate;
     }
+    cout<<"Waypoints visited: "<<visited_waypoints.size()<<endl;
+    convert_tuple_vector_to_csv(time_location,"data/time_location_mapping.csv");
 
 //    vector<coordinate> goal_coordinates; //To be received by the CSPICE illumination function
 //    goal_coordinates.emplace_back(coordinate{1,13});
