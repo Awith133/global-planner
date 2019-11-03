@@ -34,9 +34,21 @@ def get_pit_bbox(row_low,row_high,col_low,col_high,im):
 
 
 def main():
+    ### ELEVATION MAP FILE ### 
     csv_name = '../data/globalmap.csv'
     my_map = genfromtxt(csv_name, delimiter=',')
+
+    ### MAP IMAGE FILE ### 
     image_location = "../data/globalmap.png"
+
+    ### WAYPOINT/PIT EDGE FILE ### 
+    waypoints_from_algo_csv_name = '../data/test_my_waypoints.csv'
+    waypoints = genfromtxt(waypoints_from_algo_csv_name, delimiter=',',dtype=int)
+
+     ### TRAJECTORY FILE ### 
+    trajectory_csv_name = '../data/test_trajectory.csv'
+    trajectory = genfromtxt(trajectory_csv_name, delimiter=',',dtype=int)   
+
     img = cv2.imread(image_location,0)
     # im_name = '../data/Pit_Image_Global.jpeg'
     #create_map_using_tif(file_name)
@@ -60,14 +72,14 @@ def main():
     ### MARKING PIT_EDGE ###
     for x,y in border:
         cv2.circle(three_channel_image,(y, x), 1, (0,0,255), -1)
-    cv2.imshow("pit_edges_only", three_channel_image);
-
-    waypoints_from_algo_csv_name = '../data/test_my_waypoints.csv'
-    waypoints = genfromtxt(waypoints_from_algo_csv_name, delimiter=',',dtype=int)
-    ipdb.set_trace()
+    # cv2.imshow("pit_edges_only", three_channel_image);
 
     for x,y in waypoints:
-        cv2.circle(three_channel_image_copy,(y, x), 1, (0,255,0), -1)
+        cv2.circle(three_channel_image_copy,(y, x), 1, (255,0,0), -1)
+
+    for x,y in trajectory:
+        cv2.circle(three_channel_image_copy,(y, x), 1, (0,0,255), -1)   
+          
     cv2.imshow("algo_pit_edges_only", three_channel_image_copy);
 
 

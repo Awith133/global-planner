@@ -463,7 +463,7 @@ int main() {
     cout<<"Done"<<endl;
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
-//    cout<<endl<<"No. of pit interior points: "<<pit_interior_points.size()<<endl;
+    cout<<endl<<"No. of pit interior points: "<<pit_interior_points.size()<<endl;
 //
 //    const int threshold_dist_from_pit{1};
 //    const double standard_deviation_threshold{.5};
@@ -472,13 +472,13 @@ int main() {
 //    convert_vector_to_csv(way_points,waypoints_file_name);
 //
 //    ///Path from lander to Pit
-//    coordinate start_coordinate{static_cast<int>(test_map.size()-100),0};
-//    coordinate goal_coordinate{750,670};
-//    const auto trajectory = get_path(test_map,0,1.9,start_coordinate,goal_coordinate);
-//    cout<<"Path_Length: "<<trajectory.size()<<endl;
-//
-//    const string trajectory_file_name = "/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Extra/trajectory.csv";
-//    convert_vector_to_csv(trajectory,trajectory_file_name);
+    coordinate test_start_coordinate{static_cast<int>(test_map.size()-1),0};
+    coordinate test_goal_coordinate{145,115};
+    const auto trajectory = get_path(test_map,-60,-15,test_start_coordinate,test_goal_coordinate);
+    cout<<"Path_Length: "<<trajectory.size()<<endl;
+
+    const string trajectory_file_name = "data/test_trajectory.csv";
+    convert_vector_to_csv(trajectory,trajectory_file_name);
 
     return 0;
 }

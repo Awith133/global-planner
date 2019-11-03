@@ -76,6 +76,12 @@ vector<coordinate> backtrack(  const Node &start_node,
 vector<coordinate> astar(const coordinate &start,const coordinate &goal,const planning_map &elevation_map){
 
     vector<coordinate> path{};
+    if (!elevation_map.is_valid(start)) {
+        std::cout << "Start is an obstacle" << std::endl;
+        return path;
+        //Start is invalid
+    }
+
     if (!elevation_map.is_valid(goal)) {
         std::cout << "Destination is an obstacle" << std::endl;
         return path;
@@ -121,7 +127,15 @@ vector<coordinate> astar(const coordinate &start,const coordinate &goal,const pl
             expand_state(node_to_expand,open,node_map,dX,dY,elevation_map,closed);
         }
     }
-    path = backtrack(node_map[start_node.c.x][start_node.c.y],node_map[goal_node.c.x][goal_node.c.y],node_map);
+    if(open.empty())
+    {
+        cout<<"No path to goal"<<endl;
+    }
+    else
+    {
+        cout<<"Path to goal found!"<<endl;
+        path = backtrack(node_map[start_node.c.x][start_node.c.y],node_map[goal_node.c.x][goal_node.c.y],node_map);
+    }
     return std::move(path);
 }
 
