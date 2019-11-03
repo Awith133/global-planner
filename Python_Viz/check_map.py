@@ -6,6 +6,9 @@ import imageio
 import cv2
 import numpy as np
 import csv
+from numpy import genfromtxt
+import ipdb
+import matplotlib.pyplot as plt
 
 def create_map_using_tif(tif_file_name):
     file_name = '/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Extra/mv5_M1121075381R-L.tif'
@@ -21,8 +24,8 @@ def load_map(map_file_name):
 def get_pit_edges(pit,threshold,row_low,row_high,col_low,col_high):
     border = []
     for i in range(row_low,row_high+1):
-        for j in range(col_low,col_high):
-            if(pit[i][j]-pit[i][j+1]>threshold or pit[i][j]-pit[i+1][j]>threshold or pit[i][j]-pit[i][j-1]>threshold or pit[i][j]-pit[i-1][j]>threshold):
+        for j in range(col_low,col_high+1):
+            if(abs(abs(pit[i][j])-abs(pit[i][j+1]))>threshold or abs(abs(pit[i][j])-abs(pit[i+1][j]))>threshold or abs(abs(pit[i][j])-abs(pit[i][j-1]))>threshold or abs(abs(pit[i][j])-abs(pit[i-1][j]))>threshold):
                 border.append((i,j))
     return border
 
@@ -31,58 +34,71 @@ def get_pit_bbox(row_low,row_high,col_low,col_high,im):
 
 
 def main():
-    file_name = '/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Extra/mv5_M1121075381R-L.tif'
+    csv_name = '../data/globalmap.csv'
+    my_map = genfromtxt(csv_name, delimiter=',')
+    image_location = "../data/globalmap.png"
+    img = cv2.imread(image_location,0)
+    # im_name = '../data/Pit_Image_Global.jpeg'
     #create_map_using_tif(file_name)
-    im = load_map('saved_map.npy')
-    cv2.imwrite('color_img.jpg', im)
-    # row=800
-    # col=520
-    # cv2.circle(im,(col, row), 5, (0,255,0), -1)
-    # cv2.imshow("image", im);
-    row_low = 580
-    row_high = 800
-    col_low = 520
-    col_high = 780
-    pit_b_box = get_pit_bbox(row_low,row_high,col_low,col_high,im)
-    pit = im
-    threshold = 0.1
+    # im = load_map(file_name)
+    # plt.imshow(my_map)
+    # plt.gray()
+    # plt.show()
+    # cv2.imwrite('color_img.jpg', im)
+    row_low = 112
+    row_high = 148
+    col_low = 110
+    col_high = 145
+    pit_b_box = get_pit_bbox(row_low,row_high,col_low,col_high,my_map)
+    pit = my_map
+    threshold = 20
     border = get_pit_edges(pit,threshold,row_low,row_high,col_low,col_high)
 
-    # print("Length is: \t",len(border))
-    # cv2.imshow("original_image", im);
+    three_channel_image = np.repeat(img[:, :, np.newaxis], 3, axis=2)
+    three_channel_image_copy = three_channel_image
 
     ### MARKING PIT_EDGE ###
     for x,y in border:
-        cv2.circle(im,(y, x), 1, (0,0,255), -1)
-    cv2.imshow("pit_edges_only", im);
+        cv2.circle(three_channel_image,(y, x), 1, (0,0,255), -1)
+    cv2.imshow("pit_edges_only", three_channel_image);
 
-    way_points = []
-    ### GET WAYPOINTS ###  
-    with open('waypoints.csv') as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        for row in readCSV:
-            x = int(row[0])
-            y = int(row[1])
-            way_points.append((x,y))
+    waypoints_from_algo_csv_name = '../data/test_my_waypoints.csv'
+    waypoints = genfromtxt(waypoints_from_algo_csv_name, delimiter=',',dtype=int)
+    ipdb.set_trace()
 
-    ### CREATE WAYPOINTS ###  
-    for x,y in way_points:
-        cv2.circle(im,(y, x), 1, (0,0,255), -1)
+    for x,y in waypoints:
+        cv2.circle(three_channel_image_copy,(y, x), 1, (0,255,0), -1)
+    cv2.imshow("algo_pit_edges_only", three_channel_image_copy);
 
-    path = []
-    ### GET WAYPOINTS ###  
-    with open('trajectory.csv') as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        for row in readCSV:
-            x = int(row[0])
-            y = int(row[1])
-            path.append((x,y))
 
-    ### CREATE WAYPOINTS ###  
-    for x,y in path:
-        cv2.circle(im,(y, x), 1, (0,0,255), -1)
 
-    cv2.imshow("with_Trajectory", im);
+    # way_points = []
+    # ### GET WAYPOINTS ###  
+    # with open('waypoints.csv') as csvfile:
+    #     readCSV = csv.reader(csvfile, delimiter=',')
+    #     for row in readCSV:
+    #         x = int(row[0])
+    #         y = int(row[1])
+    #         way_points.append((x,y))
+
+    # ### CREATE WAYPOINTS ###  
+    # for x,y in way_points:
+    #     cv2.circle(im,(y, x), 1, (0,0,255), -1)
+
+    # path = []
+    # ### GET WAYPOINTS ###  
+    # with open('trajectory.csv') as csvfile:
+    #     readCSV = csv.reader(csvfile, delimiter=',')
+    #     for row in readCSV:
+    #         x = int(row[0])
+    #         y = int(row[1])
+    #         path.append((x,y))
+
+    # ### CREATE WAYPOINTS ###  
+    # for x,y in path:
+    #     cv2.circle(im,(y, x), 1, (0,0,255), -1)
+
+    # cv2.imshow("with_Trajectory", im);
 
     '''
 
