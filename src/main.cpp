@@ -31,54 +31,6 @@ struct coordinate_hasher
     }
 };
 
-//======================================================================================================================
-
-vector<coordinate> get_neighbors(const int &x,
-                const int &y,
-                const vector<vector<double>> &map)
-{
-    constexpr int NUMOFDIRS = 4; //Assume 4 connected grid for now
-    int dX[NUMOFDIRS] = {-1, 1, 0, 0};
-    int dY[NUMOFDIRS] = {0, 0, -1, 1};
-    vector<coordinate> neighbors;
-    for(int dir = 0; dir < NUMOFDIRS; dir++) {
-        int newx = x + dX[dir];
-        int newy = y + dY[dir];
-        if (newx >= 0 && newx < map.size() && newy >= 0 && newy < map[0].size())
-        {
-            neighbors.emplace_back(coordinate(newx,newy));
-        }
-    }
-    return std::move(neighbors);
-}
-
-//======================================================================================================================
-
-bool is_coordinate_pit_edge(const int &x,
-                            const int &y,
-                            const vector<vector<double>> &map,
-                            const vector<coordinate> &neighbors,
-                            const double &threshold,
-                            vector<coordinate> &pit_interior)
-{
-    /// Note: This function also changes the pit_interior. If P is greater than Q by more than the threshold elevation
-    /// then P is marked as Pit edge and Q is marked as Pit interior
-    /// Verify the interior aspect of this function.
-    int flag=0;
-    for(const auto &neighbor:neighbors)
-    {
-        if(abs(abs(map[x][y]) - abs(map[neighbor.x][neighbor.y]))>threshold)
-//        if(map[x][y] - map[neighbor.x][neighbor.y]>threshold)
-        {
-            flag=1;
-            pit_interior.emplace_back(coordinate(x,y));
-        }
-    }
-    return flag;
-    //TO BE IMPLEMENTED
-    //See if x,y is less than all its neighbors (elevation-wise) it is a pit edge.
-}
-
 //=======================================================================================================================
 
 void dfs_util(unordered_set<coordinate,coordinate_hasher> &accept_list,
@@ -169,31 +121,6 @@ vector<coordinate> generate_way_points(const vector<coordinate> &pit_edges,
     }
 
     return std::move(way_points);
-}
-
-//=======================================================================================================================
-
-vector<coordinate> get_pit_edges(const vector<vector<double>> &map,
-              const vector<pair<int,int>> &pit_bbox,
-              const double &threshold,
-              vector<coordinate> &pit_interior_points)
-{
-//  The threshold as of now is based on the difference of the max and min elevation
-
-    bbox b(0,0,0,0);
-    b.get_bbox_coord(pit_bbox);
-//    cout<<b.x_min<<"\t"<<b.y_min<<"\t"<<b.x_max<<"\t"<<b.y_max<<endl;
-    vector<coordinate> pit_edges;
-    for(size_t i=b.x_min;i<=b.x_max;i++)
-    {
-        for(size_t j=b.y_min;j<=b.y_max;j++)
-        {   //Note: Since we know that pit_bbox wont be a very large 2D vector O(n^3) is fine. See if it can be optimised
-            const auto neighbors = get_neighbors(i,j,map);
-            if(is_coordinate_pit_edge(i,j,map,neighbors,threshold,pit_interior_points))
-                pit_edges.emplace_back(coordinate(i,j));
-        }
-    }
-    return pit_edges;
 }
 
 //======================================================================================================================
@@ -472,9 +399,9 @@ int main() {
 //    convert_vector_to_csv(way_points,waypoints_file_name);
 //
 //    ///Path from lander to Pit
-    coordinate test_start_coordinate{static_cast<int>(test_map.size()-1),0};
+    coordinate test_start_coordinate{static_cast<int>(test_map.size()-1),45};
     coordinate test_goal_coordinate{145,115};
-    const auto trajectory = get_path(test_map,-60,-15,test_start_coordinate,test_goal_coordinate);
+    const auto trajectory = get_path(test_map,-60,-30,test_start_coordinate,test_goal_coordinate);
     cout<<"Path_Length: "<<trajectory.size()<<endl;
 
     const string trajectory_file_name = "data/test_trajectory.csv";

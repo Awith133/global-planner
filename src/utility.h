@@ -13,6 +13,15 @@
 
 bool is_destination(const coordinate &c, const coordinate &goal);
 
+vector<coordinate> get_neighbors(const int &x,
+                                 const int &y,
+                                 const vector<vector<double>> &map);
+
+vector<coordinate> get_pit_edges(const vector<vector<double>> &map,
+                                 const vector<pair<int,int>> &pit_bbox,
+                                 const double &threshold,
+                                 vector<coordinate> &pit_interior_points);
+
 vector<coordinate> astar(const coordinate &start,const coordinate &goal,const planning_map &elevation_map);
 
 //vector<coordinate> implicit_astar(const coordinate &start,
