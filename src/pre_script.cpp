@@ -5,8 +5,6 @@
 //#pragma once
 
 #include <vector>
-#include <string>
-
 #include "coordinate.h"
 #include "utility.h"
 
@@ -27,6 +25,13 @@ int temp_main()
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
     cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
+    //
+//    const int threshold_dist_from_pit{1};
+//    const double standard_deviation_threshold{.5};
+//    auto way_points = generate_way_points(pit_edges,test_map,threshold_dist_from_pit,pit_interior_points);
+//    const string waypoints_file_name = "/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Real_Project_Work/Extra/waypoints.csv";
+//    convert_vector_to_csv(way_points,waypoints_file_name);
+//
 
     return 0;
 };
