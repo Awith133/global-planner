@@ -9,8 +9,8 @@ def colour_box(img, xy, spacing, color):
         y = int(y)
         img[x*spacing:(x+1)*spacing, y*spacing:(y+1)*spacing] += color
 
-illuminationtimeleft = np.load("data/litwaypointstimeleft_1.npy")
-waypoints = np.genfromtxt('data/trial_way_points.csv', delimiter=',')
+illuminationtimeleft = np.load("data/litwaypointstimeleft.npy")
+waypoints = np.genfromtxt('data/trial_way_points_old.csv', delimiter=',')
 robot_waypoints = np.genfromtxt('data/time_location_mapping.csv', delimiter=',')
 
 print("Creating Animation")
@@ -34,7 +34,7 @@ for i in range(illuminationtimeleft.shape[1]):
         img = np.stack((img, img, img), axis=-1)
         img_lit = img
         colour_box(img_lit, waypoints[wp_indices,:], 20, [255,0,0])
-        # colour_box(img_lit, [(r_x,r_y)], 20, [0,255,0])
+        colour_box(img_lit, [(r_x,r_y)], 20, [0,255,0])
         im = plt.imshow(img_lit, animated=True)
         ims.append([im])
     # plt.show()
