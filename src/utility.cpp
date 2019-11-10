@@ -60,8 +60,9 @@ bool is_coordinate_pit_edge(const int &x,
     int flag=0;
     for(const auto &neighbor:neighbors)
     {
-        if(abs(abs(map[x][y]) - abs(map[neighbor.x][neighbor.y]))>threshold)
+//        if(abs(abs(map[x][y]) - abs(map[neighbor.x][neighbor.y]))>threshold)
 //        if(map[x][y] - map[neighbor.x][neighbor.y]>threshold)
+       if(abs(map[x][y]) - abs(map[neighbor.x][neighbor.y])>threshold)
         {
             flag=1;
             pit_interior.emplace_back(coordinate(x,y));
@@ -290,27 +291,91 @@ void implicit_expand_state(const MGA_Node  &node_to_expand,
 
 //=====================================================================================================================
 
+coordinate get_central_waypoint(const vector<coordinate> &coordinates)
+{
+    int MIN_X = INT_MAX;
+    int MIN_Y = INT_MAX;
+    int MAX_X = INT_MIN;
+    int MAX_Y = INT_MIN;
+
+    for(const auto &coord:coordinates)
+    {
+        if(coord.x>MAX_X)
+            MAX_X = coord.x;
+        else if(coord.x<MIN_X)
+            MIN_X = coord.x;
+
+        if(coord.y>MAX_Y)
+            MAX_Y = coord.y;
+        else if(coord.y<MIN_Y)
+            MIN_Y = coord.y;
+    }
+
+    return coordinate{(MIN_X+MAX_X)/2,(MIN_Y+MAX_Y)/2};
+}
+
+//=====================================================================================================================
+
+double get_diagonal_distance(const coordinate &start,
+                             const coordinate &goal)
+{
+    int dx = abs(goal.x - start.x);
+    int dy = abs(goal.y - start.y);
+
+    int min = std::min(dx, dy);
+    int max = std::max(dx, dy);
+
+    int diagonalSteps = min;
+    int straightSteps = max - min;
+
+    return sqrt(2) * diagonalSteps + straightSteps;
+}
+
+//=====================================================================================================================
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_distances_from_central_waypoint(const vector<coordinate> &goals)
+{
+    /// This function finds the central waypoint and then finds the diagonal distance between all the goals and the central waypoint
+
+
+    auto central_waypoint = get_central_waypoint(goals);
+    unordered_map<coordinate,double,my_coordinate_hasher> distances_from_central_waypoint;
+    for(const auto &goal:goals)
+    {
+        distances_from_central_waypoint[goal] = get_diagonal_distance(goal,central_waypoint);
+    }
+    return std::move(distances_from_central_waypoint);
+};
+
+
+//=====================================================================================================================
+
 MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_traversal_times,
                        const multi_goal_A_star_configuration &MGA_config,
                        const vector<double> &time_remaining_to_lose_vantage_point_status,
+                       unordered_map<coordinate,double,my_coordinate_hasher> distances_from_central_waypoint,
                        bool &vantage_point_reached_within_time,
                        const vector<coordinate> &goals)
 {
     double best_time_stat = INT_MIN;
+    double best_reward = INT_MIN;
     MGA_Node best_goal{coordinate{-1,-1}};
 
     for(size_t i=0;i<time_remaining_to_lose_vantage_point_status.size();i++)
     {
         MGA_Node temp_mga_node{goals[i]};
         auto node_in_consideration = goal_traversal_times.find (temp_mga_node);
+        const auto distance_to_central_waypoint = distances_from_central_waypoint[goals[i]];
 //        cout<<"Time taken to reach: "<<node_in_consideration->second<<endl;
 //        cout<<"time_remaining_to_lose_vantage_point_status: "<< time_remaining_to_lose_vantage_point_status[i]<<endl;
 //        cout<<"Difference inclusive of pessimistic factor "<<time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second<<endl;
 //        node_in_consideration->first.print_MGA_node();
 //        cout<<"============================================================="<<endl;
-        if(time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second > best_time_stat)
+        auto time_stat = time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second;
+        if(time_stat > 0 && time_stat - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint>best_reward)
         {
-            best_time_stat = time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second;
+            best_time_stat = time_stat; //Best time stat might not actually be the best time stat; It is the time stat for the best goal
+            best_reward = time_stat - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint;
             best_goal = node_in_consideration->first;
         }
     }
@@ -393,7 +458,8 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
         }
     }
     bool vantage_point_reached_within_time = false;
-    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,vantage_point_reached_within_time,goals);
+    auto distances_from_central_waypoint = get_distances_from_central_waypoint(goals);
+    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,std::move(distances_from_central_waypoint),vantage_point_reached_within_time,goals);
     if(!vantage_point_reached_within_time)
         return multi_goal_A_star_return{-1,vector<coordinate> {}};
 
@@ -415,7 +481,7 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                              const rover_parameters &rover_config)
 {
     planning_map my_map{g_map,min_elevation,max_elevation}; //Pit interiors have to be made obstacle here. Tune min elevation according to that
-    const multi_goal_A_star_configuration MGA_config{2,5};
+    const multi_goal_A_star_configuration MGA_config{2,100};
     return multi_goal_astar(start_coordinate,goal_coordinates,my_map,time_remaining_to_lose_vantage_point_status,rover_config,MGA_config);
 }
 

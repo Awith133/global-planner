@@ -10,9 +10,9 @@
 struct multi_goal_A_star_configuration
 {
     double pessimistic_factor;
-    double time_difference_weight;
-    explicit multi_goal_A_star_configuration(double pessismistic_time_factor = 2,double weight_time_difference = 2):
-            pessimistic_factor(pessismistic_time_factor),time_difference_weight(weight_time_difference){}
+    double distance_from_central_point_weight;
+    explicit multi_goal_A_star_configuration(double pessismistic_time_factor = 2,double new_distance_from_central_point_weight = 100):
+            pessimistic_factor(pessismistic_time_factor),distance_from_central_point_weight(new_distance_from_central_point_weight){}
 
 };
 
