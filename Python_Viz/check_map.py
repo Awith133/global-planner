@@ -35,18 +35,18 @@ def get_pit_bbox(row_low,row_high,col_low,col_high,im):
 
 def main():
     ### ELEVATION MAP FILE ### 
-    csv_name = '../data/globalmap.csv'
+    csv_name = 'data/globalmap.csv'
     my_map = genfromtxt(csv_name, delimiter=',')
 
     ### MAP IMAGE FILE ### 
-    image_location = "../data/globalmap.png"
+    image_location = "data/globalmap.png"
 
     ### WAYPOINT/PIT EDGE FILE ### 
-    waypoints_from_algo_csv_name = '../data/test_my_waypoints.csv'
+    waypoints_from_algo_csv_name = 'data/waypoints.csv'
     waypoints = genfromtxt(waypoints_from_algo_csv_name, delimiter=',',dtype=int)
 
      ### TRAJECTORY FILE ### 
-    trajectory_csv_name = '../data/test_trajectory.csv'
+    trajectory_csv_name = 'data/lander_to_pit_trajectory.csv'
     trajectory = genfromtxt(trajectory_csv_name, delimiter=',',dtype=int)   
 
     img = cv2.imread(image_location,0)
@@ -70,8 +70,8 @@ def main():
     three_channel_image_copy = three_channel_image
 
     ### MARKING PIT_EDGE ###
-    for x,y in border:
-        cv2.circle(three_channel_image,(y, x), 1, (0,0,255), -1)
+    # for x,y in border:
+    #     cv2.circle(three_channel_image,(y, x), 1, (0,0,255), -1)
     # cv2.imshow("pit_edges_only", three_channel_image);
 
     for x,y in waypoints:

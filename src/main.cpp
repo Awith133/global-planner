@@ -261,8 +261,8 @@ int main(int argc, char** argv) {
 
     if(strcmp(argv[1],"around_pit") == 0)
     {
-        const double MIN_ELEVATION = -1.0;
-        const double MAX_ELEVATION = 0.5;
+        const double MIN_ELEVATION = 0.5;
+        const double MAX_ELEVATION = 1.5;
         const rover_parameters rover_config;
 
         //Reading Files
@@ -329,21 +329,27 @@ int main(int argc, char** argv) {
     else if(strcmp(argv[1],"lander_to_pit") == 0)
     {
         ///Testing on real global image
-        string csv_name = "data/globalmap.csv";
-        const double test_threshold = 20;
+        string occupancy_map_file = "data/occupancy_global_map.csv";
+        string elevation_map_file = "data/globalmap.csv";
+        const double MIN_TRAVERSABLE_ELEVATION = 0.5;
+        const double MAX_TRAVERSABLE_ELEVATION = 1.5;
+        const double ELEVATION_THRESHOLD = 20;
         const vector<pair<int,int>> test_pit_bbox{make_pair(112,110),make_pair(112,145),make_pair(148,110),make_pair(148,145)};
-        const auto test_map = convert_csv_to_vector(csv_name);
-        MAP_WIDTH = test_map[0].size();
+        const auto elevation_map = convert_csv_to_vector(elevation_map_file);
+        const auto occupancy_map = convert_csv_to_vector(occupancy_map_file);
+        MAP_WIDTH = elevation_map[0].size();
+        assert(elevation_map.size()==occupancy_map.size());
         vector<coordinate> test_pit_interior_points;
-        const auto test_pit_edges = get_pit_edges(test_map,test_pit_bbox,test_threshold,test_pit_interior_points);
+        const auto test_pit_edges = get_pit_edges(elevation_map,test_pit_bbox,ELEVATION_THRESHOLD,test_pit_interior_points);
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
         cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
 
 //    ///Path from lander to Pit
-        coordinate test_start_coordinate{static_cast<int>(test_map.size()-1),45};
+//        coordinate test_start_coordinate{static_cast<int>(occupancy_map.size()-1),13};
+        coordinate test_start_coordinate{static_cast<int>(0),208};
         coordinate test_goal_coordinate{145,115};
-        const auto trajectory = get_path(test_map,-60,-30,test_start_coordinate,test_goal_coordinate);
+        const auto trajectory = get_path(occupancy_map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,test_start_coordinate,test_goal_coordinate);
         cout<<"Path_Length: "<<trajectory.size()<<endl;
 
         //Writing data to CSV's
