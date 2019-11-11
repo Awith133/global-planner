@@ -21,7 +21,7 @@ class Pit:
         pass
 
 
-illumination = loadmat("data/moon_rel_positions_44_25.mat")
+illumination = loadmat("data/moon_rel_positions_0_0.mat")
 # 'U_earth_point_me', 'U_me_point_me', 'U_sun_point_me', 'ets', 'ets_utc'
 
 times = illumination['ets_utc']

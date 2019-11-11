@@ -487,6 +487,20 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
 
 //=====================================================================================================================
 
+coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_waypoint_time_data,
+                                           const vector<coordinate> &way_points)
+{
+    vector<coordinate> positive_T_vantage_points_at_zero_time;
+    for(size_t i=0;i<lit_waypoint_time_data.size();i++)
+    {
+        if(lit_waypoint_time_data[i][0]>0)
+            positive_T_vantage_points_at_zero_time.emplace_back(way_points[i]);
+    }
+
+    return get_central_waypoint(positive_T_vantage_points_at_zero_time);
+}
+
+//=====================================================================================================================
 
 vector<coordinate> get_goal_coordinates(const vector<vector<double>> &lit_waypoint_time_data,
                                         const int &present_time_index,
@@ -496,8 +510,6 @@ vector<coordinate> get_goal_coordinates(const vector<vector<double>> &lit_waypoi
                                         vector<double> &time_remaining_to_lose_vantage_point_status)
 {
     vector<coordinate> goal_coordinates;
-    /// TO DO: See what Sohil gives you in the lit_waypoint_time_data array. Based on that you would have to complete this code.
-    /// See if it is index based on the original distribution of waypoints list? Or does the table have in the first column, the waypoints coordinate
     for(size_t i=0;i<lit_waypoint_time_data.size();i++)
     {
         if(lit_waypoint_time_data[i][present_time_index]>0 && !visited_waypoints.count(original_waypoints[i]))

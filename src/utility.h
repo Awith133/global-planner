@@ -57,6 +57,9 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                             const vector<double> &time_remaining_to_lose_vantage_point_status,
                                             const rover_parameters &rover_config);
 
+coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_waypoint_time_data,
+                                           const vector<coordinate> &way_points);
+
 vector<vector<double>> convert_csv_to_vector(const string &file_name);
 
 void convert_vector_to_csv(const vector<coordinate> &way_points,const string &file_name);

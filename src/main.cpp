@@ -271,7 +271,9 @@ int main(int argc, char** argv) {
         const auto way_points = make_coordinate_vector_from_csv("data/waypoints.csv");
         const auto map = convert_csv_to_vector("data/occupancy_global_map.csv");
         const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
+        auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
 
+        cout<<"Number of Lit Waypoints is: "<<lit_waypoint_time_data.size()<<endl;
         cout<<"start_quadrant_index: "<<start_quadrant_index<<endl;
 
 //      const int threshold_dist_from_pit{1};
@@ -288,7 +290,9 @@ int main(int argc, char** argv) {
         start_coordinate.print_coordinate();
 
 ///     Lander to Pit Traversal
-        coordinate goal_coordinate{145,115};
+        auto goal_coordinate = get_goal_coordinate_from_lander(lit_waypoint_time_data,way_points);
+        cout<<"Goal coordinate: "<<endl;
+        goal_coordinate.print_coordinate();
         const auto trajectory = get_path(map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,start_coordinate,goal_coordinate);
         cout<<"Path_Length: "<<trajectory.size()<<endl;
 
@@ -300,8 +304,6 @@ int main(int argc, char** argv) {
         double time_per_step = 700;
         double present_time = 0;
         int present_time_index = 0;
-        auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
-        cout<<"Number of Lit Waypoints is: "<<lit_waypoint_time_data.size()<<endl;
         assert(lit_waypoint_time_data.size()==way_points.size());
         double final_time_index = lit_waypoint_time_data[0].size();
         unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
@@ -311,10 +313,10 @@ int main(int argc, char** argv) {
 
         while(present_time_index<final_time_index)
         {
-            cout<<"At present_time_index: "<<present_time_index<<endl;
-            cout<<"Start Position: "<<"\t";
-            start_coordinate.print_coordinate();
-            cout<<"=================================="<<endl;
+//            cout<<"At present_time_index: "<<present_time_index<<endl;
+//            cout<<"Start Position: "<<"\t";
+//            start_coordinate.print_coordinate();
+//            cout<<"=================================="<<endl;
             auto start = std::chrono::high_resolution_clock::now();
             vector<double> time_remaining_to_lose_vantage_point_status;
             auto goal_coordinates = get_goal_coordinates(lit_waypoint_time_data,present_time_index,way_points,visited_waypoints,time_per_step,time_remaining_to_lose_vantage_point_status);
@@ -350,21 +352,40 @@ int main(int argc, char** argv) {
     {
         ///Testing on real global image
         string elevation_map_file = "data/elevation_global_map.csv";
+        const auto occupancy_map = convert_csv_to_vector("data/occupancy_global_map.csv");
         const double ELEVATION_THRESHOLD = 20;
+        const int threshold_dist_from_pit{1};
         const vector<pair<int,int>> test_pit_bbox{make_pair(112,110),make_pair(112,145),make_pair(148,110),make_pair(148,145)};
         const auto elevation_map = convert_csv_to_vector(elevation_map_file);
         MAP_WIDTH = elevation_map[0].size();
         vector<coordinate> test_pit_interior_points;
         const auto test_pit_edges = get_pit_edges(elevation_map,test_pit_bbox,ELEVATION_THRESHOLD,test_pit_interior_points);
+        auto way_points = generate_way_points(test_pit_edges,elevation_map,threshold_dist_from_pit,test_pit_interior_points);
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
         cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
+        cout<<endl<<"No. of Waypoints prior to pruning: "<<way_points.size()<<endl;
+
+        vector<coordinate> pruned_waypoints;
+        for(const auto &coord:way_points)
+        {
+            if(occupancy_map[coord.x][coord.y]>0.5)
+                pruned_waypoints.emplace_back(coord);
+        }
+        cout<<endl<<"No. of Waypoints post pruning: "<<pruned_waypoints.size()<<endl;
+
+//        for(const auto &coord:way_points)
+//        {
+//            cout<<occupancy_map[coord.x][coord.y]<<endl;
+//        }
+
+//        auto pruned_waypoints = way_points;
 
         //Writing data to CSV's
         const string waypoints_file_name = "data/waypoints.csv";
         const string pit_interior_file_name = "data/pit_interior.csv";
         convert_vector_to_csv(test_pit_interior_points,pit_interior_file_name);
-        convert_vector_to_csv(test_pit_edges,waypoints_file_name);
+        convert_vector_to_csv(pruned_waypoints,waypoints_file_name);
     }
     return 0;
 }
