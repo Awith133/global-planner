@@ -21,21 +21,21 @@ class Pit:
         pass
 
 
-illumination = loadmat("data/moon_rel_positions.mat")
+illumination = loadmat("data/moon_rel_positions_44_25.mat")
 # 'U_earth_point_me', 'U_me_point_me', 'U_sun_point_me', 'ets', 'ets_utc'
 
 times = illumination['ets_utc']
-# directions = illumination['U_sun_point_enu']
-directions = illumination['U_sun_point_me']
+directions = illumination['U_sun_point_enu']
+# directions = illumination['U_sun_point_me']
 
-map_data = np.genfromtxt('data/mv5_M1121075381R-L.csv', delimiter=',')
-waypoints = np.genfromtxt('data/trial_way_points.csv', delimiter=',')
+# map_data = np.genfromtxt('data/mv5_M1121075381R-L.csv', delimiter=',')
+waypoints = np.genfromtxt('data/waypoints.csv', delimiter=',')
 
-map_data_image = map_data - map_data.min()
-map_data_image = map_data_image/map_data_image.max()
+# map_data_image = map_data - map_data.min()
+# map_data_image = map_data_image/map_data_image.max()
 
-map_data_image[waypoints[:,0].astype(int), waypoints[:,1].astype(int)] = 1
-map_data_image = np.dstack((map_data_image,map_data_image,map_data_image))
+# map_data_image[waypoints[:,0].astype(int), waypoints[:,1].astype(int)] = 1
+# map_data_image = np.dstack((map_data_image,map_data_image,map_data_image))
 # plt.imshow(map_data_image)
 # plt.show()
 
@@ -61,3 +61,5 @@ for i in range(mask.shape[1]-1):
 
 np.save("data/litwaypointstimeleft.npy", illuminationtimeleft)
 np.savetxt("data/lit_waypoints.csv", illuminationtimeleft, delimiter=",")
+# np.save("data/pit_center.npy", )
+print("Finished running illumination finder")

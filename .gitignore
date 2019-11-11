@@ -1,3 +1,8 @@
+data/lander_to_pit_trajectory.csv
+data/lit_waypoints.csv
+data/litwaypointstimeleft.npy
+data/pit_interior.csv
+
 # Prerequisites
 *.d
 
