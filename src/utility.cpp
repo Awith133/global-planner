@@ -608,3 +608,16 @@ void convert_tuple_vector_to_csv(vector<tuple<int,int,int>> time_location, const
 }
 
 //=====================================================================================================================
+
+string read_text_file(const string &file_name)
+{
+    std::ifstream ifs(file_name);
+
+    std::string word;
+
+// extract one word ignoring leading spaces and stopping at the next space
+    ifs >> word;
+    return word;
+}
+
+//=====================================================================================================================

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <set>
 #include <unordered_set>
+#include <unordered_map>
 #include <chrono>
 //#include "convert_img_to_map.h"
 #include "coordinate.h"
@@ -261,20 +262,39 @@ int main(int argc, char** argv) {
 
     if(strcmp(argv[1],"around_pit") == 0)
     {
-        const double MIN_ELEVATION = 0.5;
-        const double MAX_ELEVATION = 1.5;
+        const double MIN_TRAVERSABLE_ELEVATION = 0.5;
+        const double MAX_TRAVERSABLE_ELEVATION = 1.5;
         const rover_parameters rover_config;
 
         //Reading Files
         auto pit_interior_points = make_coordinate_vector_from_csv("data/pit_interior.csv");
         const auto way_points = make_coordinate_vector_from_csv("data/waypoints.csv");
-        const auto map = convert_csv_to_vector("data/globalmap.csv");
+        const auto map = convert_csv_to_vector("data/occupancy_global_map.csv");
+        const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
+
+        cout<<"start_quadrant_index: "<<start_quadrant_index<<endl;
 
 //      const int threshold_dist_from_pit{1};
 //      const double standard_deviation_threshold{.5};
 //      auto way_points = generate_way_points(pit_edges,map,threshold_dist_from_pit,pit_interior_points);     //Uncomment this if you want separate waypoints and pit edges
 
-        coordinate start_coordinate{145,115};
+        const unordered_map<int,coordinate> start_positions {{1,coordinate{0,0}},
+                                                             {2,coordinate{0,208}},
+                                                             {3,coordinate{static_cast<int>(map.size()-1),static_cast<int>(map[0].size()-1)}},
+                                                             {4,coordinate{static_cast<int>(210),50}}};
+
+
+        coordinate start_coordinate = start_positions.at(start_quadrant_index);
+        start_coordinate.print_coordinate();
+
+///     Lander to Pit Traversal
+        coordinate goal_coordinate{145,115};
+        const auto trajectory = get_path(map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,start_coordinate,goal_coordinate);
+        cout<<"Path_Length: "<<trajectory.size()<<endl;
+
+        //Writing data to CSV's
+        const string trajectory_file_name = "data/lander_to_pit_trajectory.csv";
+        convert_vector_to_csv(trajectory,trajectory_file_name);
 
 ///  Multi Goal A* Planning for illuminated coordinates
         double time_per_step = 700;
@@ -299,7 +319,7 @@ int main(int argc, char** argv) {
             vector<double> time_remaining_to_lose_vantage_point_status;
             auto goal_coordinates = get_goal_coordinates(lit_waypoint_time_data,present_time_index,way_points,visited_waypoints,time_per_step,time_remaining_to_lose_vantage_point_status);
             assert(time_remaining_to_lose_vantage_point_status.size()==goal_coordinates.size());
-            auto mga_result = get_path_to_vantage_point(map,MIN_ELEVATION,MAX_ELEVATION+10,start_coordinate,goal_coordinates,time_remaining_to_lose_vantage_point_status,rover_config);
+            auto mga_result = get_path_to_vantage_point(map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,start_coordinate,goal_coordinates,time_remaining_to_lose_vantage_point_status,rover_config);
             auto stop = std::chrono::high_resolution_clock::now();
             auto time_taken_to_plan = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
             present_time+= static_cast<double>(time_taken_to_plan.count());
@@ -329,36 +349,22 @@ int main(int argc, char** argv) {
     else if(strcmp(argv[1],"lander_to_pit") == 0)
     {
         ///Testing on real global image
-        string occupancy_map_file = "data/occupancy_global_map.csv";
-        string elevation_map_file = "data/globalmap.csv";
-        const double MIN_TRAVERSABLE_ELEVATION = 0.5;
-        const double MAX_TRAVERSABLE_ELEVATION = 1.5;
+        string elevation_map_file = "data/elevation_global_map.csv";
         const double ELEVATION_THRESHOLD = 20;
         const vector<pair<int,int>> test_pit_bbox{make_pair(112,110),make_pair(112,145),make_pair(148,110),make_pair(148,145)};
         const auto elevation_map = convert_csv_to_vector(elevation_map_file);
-        const auto occupancy_map = convert_csv_to_vector(occupancy_map_file);
         MAP_WIDTH = elevation_map[0].size();
-        assert(elevation_map.size()==occupancy_map.size());
         vector<coordinate> test_pit_interior_points;
         const auto test_pit_edges = get_pit_edges(elevation_map,test_pit_bbox,ELEVATION_THRESHOLD,test_pit_interior_points);
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
         cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
 
-//    ///Path from lander to Pit
-//        coordinate test_start_coordinate{static_cast<int>(occupancy_map.size()-1),13};
-        coordinate test_start_coordinate{static_cast<int>(0),208};
-        coordinate test_goal_coordinate{145,115};
-        const auto trajectory = get_path(occupancy_map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,test_start_coordinate,test_goal_coordinate);
-        cout<<"Path_Length: "<<trajectory.size()<<endl;
-
         //Writing data to CSV's
         const string waypoints_file_name = "data/waypoints.csv";
         const string pit_interior_file_name = "data/pit_interior.csv";
-        const string trajectory_file_name = "data/lander_to_pit_trajectory.csv";
         convert_vector_to_csv(test_pit_interior_points,pit_interior_file_name);
         convert_vector_to_csv(test_pit_edges,waypoints_file_name);
-        convert_vector_to_csv(trajectory,trajectory_file_name);
     }
     return 0;
 }

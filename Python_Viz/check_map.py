@@ -35,7 +35,7 @@ def get_pit_bbox(row_low,row_high,col_low,col_high,im):
 
 def main():
     ### ELEVATION MAP FILE ### 
-    csv_name = 'data/globalmap.csv'
+    csv_name = 'data/elevation_global_map.csv'
     my_map = genfromtxt(csv_name, delimiter=',')
 
     ### MAP IMAGE FILE ### 
