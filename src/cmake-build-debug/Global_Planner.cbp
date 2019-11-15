@@ -128,9 +128,6 @@
 		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/rover_parameters.h">
 			<Option target="Global_Planner"/>
 		</Unit>
-		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/unit_tests.cpp">
-			<Option target="Global_Planner"/>
-		</Unit>
 		<Unit filename="/Users/harsh/Desktop/CMU_Sem_3/MRSD Project II/Global_Planner/src/unit_tests.h">
 			<Option target="Global_Planner"/>
 		</Unit>

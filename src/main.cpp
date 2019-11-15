@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
+#include "unit_tests.h"
 //#include "convert_img_to_map.h"
 #include "coordinate.h"
 #include "b_box.h"
@@ -273,6 +274,8 @@ int main(int argc, char** argv) {
         const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
         auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
 
+        MAP_WIDTH = map[0].size();
+
         cout<<"Number of Lit Waypoints is: "<<lit_waypoint_time_data.size()<<endl;
         cout<<"start_quadrant_index: "<<start_quadrant_index<<endl;
 
@@ -364,28 +367,23 @@ int main(int argc, char** argv) {
 //    //Pit interior point should ideally be an unordered_set. But making it a vector as of now.
 //    // This is a design decision. a) There won't be lots of duplication b) The duplication doesn't harm us a lot
         cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
-        cout<<endl<<"No. of Waypoints prior to pruning: "<<way_points.size()<<endl;
+        cout<<endl<<"No. of Initial Waypoints : "<<way_points.size()<<endl;
 
-        vector<coordinate> pruned_waypoints;
-        for(const auto &coord:way_points)
+        way_points = get_true_waypoints(way_points,occupancy_map,test_pit_interior_points);
+
+        cout<<endl<<"No. of final Waypoints : "<<way_points.size()<<endl;
+
+        for(const auto &point:way_points)
         {
-            if(occupancy_map[coord.x][coord.y]>0.5)
-                pruned_waypoints.emplace_back(coord);
+//            cout<<occupancy_map[point.x][point.y]<<endl;
+            point.print_coordinate();
         }
-        cout<<endl<<"No. of Waypoints post pruning: "<<pruned_waypoints.size()<<endl;
 
-//        for(const auto &coord:way_points)
-//        {
-//            cout<<occupancy_map[coord.x][coord.y]<<endl;
-//        }
-
-//        auto pruned_waypoints = way_points;
-
-        //Writing data to CSV's
+        ///Writing data to CSV's
         const string waypoints_file_name = "data/waypoints.csv";
         const string pit_interior_file_name = "data/pit_interior.csv";
         convert_vector_to_csv(test_pit_interior_points,pit_interior_file_name);
-        convert_vector_to_csv(pruned_waypoints,waypoints_file_name);
+        convert_vector_to_csv(way_points,waypoints_file_name);
     }
     return 0;
 }

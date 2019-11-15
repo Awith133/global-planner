@@ -225,3 +225,32 @@ double global_map::get_minimum_elevation()
 }
 
 //=====================================================================================================================
+
+void global_map::display_unit_test_map(const vector<coordinate> &pit_interior,
+                           const vector<coordinate> &potential_pit_edge,
+                           const vector<coordinate> &true_pit_edge)
+{
+    vector<vector<string>> display_map(rows,vector<string>(cols,"."));
+
+    for(auto x:potential_pit_edge)
+    {
+        display_map[x.x][x.y] = "0";
+    }
+
+    for(auto x:pit_interior)
+    {
+        display_map[x.x][x.y] = "X";
+    }
+
+
+    if(!true_pit_edge.empty())
+    {
+        for(const auto &waypoint:true_pit_edge)
+        {
+            display_map[waypoint.x][waypoint.y] = "?";
+        }
+    }
+    display_vector(display_map);
+}
+
+//=====================================================================================================================

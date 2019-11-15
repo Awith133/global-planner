@@ -4,6 +4,8 @@
 
 #include "unit_tests.h"
 
+//======================================================================================================================
+
 void test_get_path_to_vantage_point()
 {
     vector<coordinate> goal_coordinates; //To be received by the CSPICE illumination function

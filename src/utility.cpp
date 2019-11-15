@@ -47,6 +47,86 @@ vector<coordinate> get_neighbors(const int &x,
 
 //=====================================================================================================================
 
+struct bfs_comp{
+    bool operator()(const pair<coordinate,int> &a, const pair<coordinate,int> &b){
+        return a.second>b.second;
+    }
+};
+
+//=====================================================================================================================
+
+vector<coordinate> get_true_waypoints(const vector<coordinate> &potential_waypoints,
+                                      const vector<vector<double>> &occupancy_map,
+                                      const vector<coordinate> &pit_interior)
+{
+    vector<coordinate> final_valid_waypoints;
+    unordered_set<coordinate,my_coordinate_hasher> true_waypoints;
+    unordered_set<coordinate,my_coordinate_hasher> reject_list;
+
+    for(const auto &potential_waypoint:potential_waypoints)
+    {
+        reject_list.insert(potential_waypoint);
+    }
+
+    for(const auto &coordinate_in_pit:pit_interior)
+    {
+        reject_list.insert(coordinate_in_pit);
+        //coordinate_in_pit.print_coordinate();
+    }
+
+    for(const auto &waypoint:potential_waypoints)
+    {
+        if(occupancy_map[waypoint.x][waypoint.y]>0.5)
+        {
+            true_waypoints.insert(waypoint);
+            continue;
+        }
+
+        priority_queue<pair<coordinate,int>,vector<pair<coordinate,int>>,bfs_comp> q;
+        q.push(make_pair(waypoint,0));
+        unordered_set<coordinate,my_coordinate_hasher> visited;
+        int min_cost = INT_MAX;
+        while(!q.empty())
+        {
+            const auto present_elt = q.top();
+
+            if(present_elt.second>=min_cost)
+                break;
+
+            visited.insert(present_elt.first);
+            q.pop();
+            const auto neighbors = get_neighbors(present_elt.first.x,present_elt.first.y,occupancy_map);
+            for(const auto &neighbor:neighbors)
+            {
+                if(!visited.count(neighbor) &&!reject_list.count(neighbor) && present_elt.second + 1<=min_cost)
+                {
+                    if(occupancy_map[neighbor.x][neighbor.y]>0.5)
+                    {
+                        min_cost = present_elt.second + 1;
+                        true_waypoints.insert(neighbor);
+                    }
+                    else if(present_elt.second + 1 == min_cost)
+                        continue;
+                    else
+                    {
+                        q.push(make_pair(neighbor,present_elt.second + 1));
+                    }
+                }
+            }
+        }
+    }
+
+    for(const auto &elt:true_waypoints)
+    {
+        final_valid_waypoints.emplace_back(elt);
+    }
+
+
+    return std::move(final_valid_waypoints);
+}
+
+//=====================================================================================================================
+
 bool is_coordinate_pit_edge(const int &x,
                             const int &y,
                             const vector<vector<double>> &map,

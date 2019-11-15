@@ -13,6 +13,10 @@
 
 bool is_destination(const coordinate &c, const coordinate &goal);
 
+vector<coordinate> get_true_waypoints(const vector<coordinate> &potential_waypoints,
+                                      const vector<vector<double>> &occupancy_map,
+                                      const vector<coordinate> &pit_interior);
+
 vector<coordinate> get_neighbors(const int &x,
                                  const int &y,
                                  const vector<vector<double>> &map);

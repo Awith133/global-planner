@@ -39,6 +39,9 @@ public:
     void display_vector(const vector<vector<T>> &vec);
     void display_final_map(const coordinate &start_coord,const coordinate &goal_coord);
     void display_final_map();
+    void display_unit_test_map(const vector<coordinate> &pit_interior,
+                               const vector<coordinate> &potential_pit_edge,
+                               const vector<coordinate> &true_pit_edge);
     double get_maximum_elevation();
     double get_minimum_elevation();
 };
