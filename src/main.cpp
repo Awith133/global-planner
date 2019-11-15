@@ -292,6 +292,16 @@ int main(int argc, char** argv) {
         coordinate start_coordinate = start_positions.at(start_quadrant_index);
         start_coordinate.print_coordinate();
 
+//        unordered_set<coordinate,my_coordinate_hasher> true_waypoints_set;
+//        for(const auto &x:way_points)
+//            true_waypoints_set.insert(x);
+//
+//        if(true_waypoints_set.count(coordinate{129,138}))
+//        {
+//            cout<<"Fuddu Point Present"<<endl;
+//            cout<<map[129][138]<<endl;
+//        }
+
 ///     Lander to Pit Traversal
         auto goal_coordinate = get_goal_coordinate_from_lander(lit_waypoint_time_data,way_points);
         cout<<"Goal coordinate: "<<endl;
@@ -369,21 +379,50 @@ int main(int argc, char** argv) {
         cout<<endl<<"No. of pit interior points: "<<test_pit_interior_points.size()<<endl;
         cout<<endl<<"No. of Initial Waypoints : "<<way_points.size()<<endl;
 
-        way_points = get_true_waypoints(way_points,occupancy_map,test_pit_interior_points);
-
-        cout<<endl<<"No. of final Waypoints : "<<way_points.size()<<endl;
-
-        for(const auto &point:way_points)
+        for(int i=0;i<elevation_map.size();i++)
         {
-//            cout<<occupancy_map[point.x][point.y]<<endl;
-            point.print_coordinate();
+            for(int j=0;j<elevation_map[0].size();j++)
+            {
+                if(elevation_map[i][j]<=-79.0)
+                {
+                    test_pit_interior_points.emplace_back(coordinate{i,j});
+                }
+            }
         }
+
+        auto true_way_points = get_true_waypoints(way_points,occupancy_map,test_pit_interior_points);
+        cout<<endl<<"No. of final Waypoints : "<<true_way_points.size()<<endl;
+
+//        unordered_set<coordinate,my_coordinate_hasher> pit_interior_set;
+//        unordered_set<coordinate,my_coordinate_hasher> true_waypoints_set;
+//
+//        for(const auto &x:test_pit_interior_points)
+//            pit_interior_set.insert(x);
+//
+//        for(const auto &x:true_way_points)
+//            true_waypoints_set.insert(x);
+//
+//        for(int i=0; i<occupancy_map.size();i++)
+//        {
+//            for(int j=0;j<occupancy_map[0].size();j++)
+//            {
+//                if(pit_interior_set.count(coordinate{i,j}))
+//                    cout<<"X";
+//                else if(true_waypoints_set.count(coordinate{i,j}))
+//                    cout<<"?";
+//                else
+//                    cout<<occupancy_map[i][j];
+//            }
+//            cout<<endl;
+//        }
+//
+//        cout<<"==========================================================="<<endl;
 
         ///Writing data to CSV's
         const string waypoints_file_name = "data/waypoints.csv";
         const string pit_interior_file_name = "data/pit_interior.csv";
         convert_vector_to_csv(test_pit_interior_points,pit_interior_file_name);
-        convert_vector_to_csv(way_points,waypoints_file_name);
+        convert_vector_to_csv(true_way_points,waypoints_file_name);
     }
     return 0;
 }

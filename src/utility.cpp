@@ -76,7 +76,7 @@ vector<coordinate> get_true_waypoints(const vector<coordinate> &potential_waypoi
 
     for(const auto &waypoint:potential_waypoints)
     {
-        if(occupancy_map[waypoint.x][waypoint.y]>0.5)
+        if(occupancy_map[waypoint.x][waypoint.y]>0.5 && !reject_list.count(waypoint))
         {
             true_waypoints.insert(waypoint);
             continue;
@@ -577,7 +577,19 @@ coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_way
             positive_T_vantage_points_at_zero_time.emplace_back(way_points[i]);
     }
 
-    return get_central_waypoint(positive_T_vantage_points_at_zero_time);
+    auto coord_time_map = get_distances_from_central_waypoint(positive_T_vantage_points_at_zero_time);
+    coordinate best_goal{-1,-1};
+    double least_dist = INT_MAX;
+    for(const auto &elt:coord_time_map)
+    {
+        if(elt.second<least_dist)
+        {
+            best_goal = elt.first;
+            least_dist = elt.second;
+        }
+    }
+
+    return std::move(best_goal);
 }
 
 //=====================================================================================================================

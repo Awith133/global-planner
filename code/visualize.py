@@ -10,7 +10,7 @@ def colour_box(img, xy, spacing, color):
         img[x*spacing:(x+1)*spacing, y*spacing:(y+1)*spacing] += color
 
 illuminationtimeleft = np.load("data/litwaypointstimeleft.npy")
-waypoints = np.genfromtxt('data/trial_way_points_old.csv', delimiter=',')
+waypoints = np.genfromtxt('data/waypoints.csv', delimiter=',')
 robot_waypoints = np.genfromtxt('data/time_location_mapping.csv', delimiter=',')
 
 print("Creating Animation")
