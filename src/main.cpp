@@ -292,16 +292,6 @@ int main(int argc, char** argv) {
         coordinate start_coordinate = start_positions.at(start_quadrant_index);
         start_coordinate.print_coordinate();
 
-//        unordered_set<coordinate,my_coordinate_hasher> true_waypoints_set;
-//        for(const auto &x:way_points)
-//            true_waypoints_set.insert(x);
-//
-//        if(true_waypoints_set.count(coordinate{129,138}))
-//        {
-//            cout<<"Fuddu Point Present"<<endl;
-//            cout<<map[129][138]<<endl;
-//        }
-
 ///     Lander to Pit Traversal
         auto goal_coordinate = get_goal_coordinate_from_lander(lit_waypoint_time_data,way_points);
         cout<<"Goal coordinate: "<<endl;

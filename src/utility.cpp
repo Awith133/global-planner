@@ -463,7 +463,7 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
     if(best_time_stat>0)
         vantage_point_reached_within_time=true;
 
-    cout<<"Best time stat is: "<<best_time_stat<<endl;
+    cout<<"Best reward is: "<<best_reward<<endl;
 //    best_goal.print_MGA_node();
     return best_goal;
 }
@@ -561,7 +561,7 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                              const rover_parameters &rover_config)
 {
     planning_map my_map{g_map,min_elevation,max_elevation}; //Pit interiors have to be made obstacle here. Tune min elevation according to that
-    const multi_goal_A_star_configuration MGA_config{2,100};
+    const multi_goal_A_star_configuration MGA_config{2,1000000};
     return multi_goal_astar(start_coordinate,goal_coordinates,my_map,time_remaining_to_lose_vantage_point_status,rover_config,MGA_config);
 }
 
@@ -588,8 +588,7 @@ coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_way
             least_dist = elt.second;
         }
     }
-
-    return std::move(best_goal);
+    return best_goal;
 }
 
 //=====================================================================================================================
@@ -604,7 +603,8 @@ vector<coordinate> get_goal_coordinates(const vector<vector<double>> &lit_waypoi
     vector<coordinate> goal_coordinates;
     for(size_t i=0;i<lit_waypoint_time_data.size();i++)
     {
-        if(lit_waypoint_time_data[i][present_time_index]>0 && !visited_waypoints.count(original_waypoints[i]))
+//        if(lit_waypoint_time_data[i][present_time_index]>0 && !visited_waypoints.count(original_waypoints[i]))
+    if(lit_waypoint_time_data[i][present_time_index]>0)
         {
             goal_coordinates.emplace_back(original_waypoints[i]);
             time_remaining_to_lose_vantage_point_status.emplace_back(lit_waypoint_time_data[i][present_time_index]*time_per_step);
