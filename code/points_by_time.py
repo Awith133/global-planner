@@ -21,7 +21,7 @@ class Pit:
         pass
 
 
-illumination = loadmat("data/moon_rel_positions_0_0.mat")
+illumination = loadmat("data/moon_rel_positions_44_25.mat")
 # 'U_earth_point_me', 'U_me_point_me', 'U_sun_point_me', 'ets', 'ets_utc'
 
 times = illumination['ets_utc']
@@ -41,12 +41,16 @@ waypoints = np.genfromtxt('data/waypoints.csv', delimiter=',')
 
 pit = Pit(waypoints)
 
+# Rotate about Z axis
 R_m90 = np.array([[0,-1,0],[1,0,0],[0,0,1]])
 directions_m90 = R_m90 @ directions
 
+# Mask describing which waypoints are lit per timestep 
+# 1: Lit waypoint. 
 mask = np.zeros((waypoints.shape[0], directions_m90.shape[1]))
 for i in range(directions_m90.shape[1]):
     listoflitpoints = pit.findlitpoints(directions_m90[:,i])
+    # Only if Sun is above the horizon will the point actually qualify as lit.
     if(directions_m90[2,i] < 0):
         mask[listoflitpoints,i] = 1
 

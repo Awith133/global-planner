@@ -35,6 +35,7 @@ for i in range(illuminationtimeleft.shape[1]):
         img_lit = img
         colour_box(img_lit, waypoints[wp_indices,:], 20, [255,0,0])
         colour_box(img_lit, [(r_x,r_y)], 20, [0,255,0])
+        img_lit = img_lit[int(min(waypoints[:,0])-3)*20:, int((min(waypoints[:,1])-3))*20:]
         im = plt.imshow(img_lit, animated=True)
         ims.append([im])
     # plt.show()
