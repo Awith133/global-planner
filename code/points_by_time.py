@@ -94,7 +94,7 @@ if __name__ == "__main__":
         last_end = onlyday_litindices[np.argmin(values)]
         last_start = onlyday_litindices[np.argmax(values)]
 
-        np.savetxt("data/pit_info.csv", np.array([last_end],dtype=int))
+        np.savetxt("data/pit_info.txt", np.array([last_end],dtype=int))
         np.save("data/litwaypointstimeleft.npy", illuminationtimeleft)
         np.savetxt("data/lit_waypoints.csv", illuminationtimeleft, delimiter=",")
         # np.save("data/pit_center.npy", )
