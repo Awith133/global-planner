@@ -308,15 +308,18 @@ int main(int argc, char** argv) {
         pit_center.print_coordinate();
         const auto angle_lookup_table = get_angle_lookup_table(way_points,pit_center);
         const auto illumination_start_angle = angle_lookup_table.at(goal_coordinate);
-        const auto illumination_end_angle = 5.23; //Change this later
+        const coordinate last_illuminated_waypoint {144,129};
+        const auto illumination_end_angle = get_angle(pit_center,last_illuminated_waypoint);
+//        const auto illumination_end_angle = 5.23; //Change this later
 //        cout<<"illumination_start_angle "<<illumination_start_angle<<"\t"<<"illumination_end_angle "<<illumination_end_angle<<endl;
         const auto tentative_robot_angular_change = get_tentative_robot_angular_change(illumination_start_angle,illumination_end_angle,is_illumination_rotation_clockwise);
         const auto total_lit_time = 1 + get_last_illuminated_time_step(lit_waypoint_time_data);
         const auto tentative_robot_angular_velocity = tentative_robot_angular_change/total_lit_time;
-        cout<<"get_tentative_robot_angular_change "<<tentative_robot_angular_change<<endl;
-        cout<<"total_lit_time "<<total_lit_time<<endl;
-        cout<<"tentative_robot_angular_velocity "<<tentative_robot_angular_velocity<<endl;
-        cout<<"illumination_start_angle "<<illumination_start_angle<<endl;
+//        cout<<"get_tentative_robot_angular_change "<<tentative_robot_angular_change<<endl;
+//        cout<<"total_lit_time "<<total_lit_time<<endl;
+//        cout<<"tentative_robot_angular_velocity "<<tentative_robot_angular_velocity<<endl;
+//        cout<<"illumination_start_angle "<<illumination_start_angle<<endl;
+        cout<<"illumination_end_angle "<<illumination_end_angle<<endl;
 
 ///  Multi Goal A* Planning for illuminated coordinates
         double time_per_step = 700;
@@ -336,7 +339,7 @@ int main(int argc, char** argv) {
 //            start_coordinate.print_coordinate();
 //            cout<<"=================================="<<endl;
             auto start = std::chrono::high_resolution_clock::now();
-            auto tentative_present_robot_angle = illumination_start_angle - tentative_robot_angular_velocity*present_time_index;
+            auto tentative_present_robot_angle = get_tentative_present_robot_angle(illumination_start_angle,tentative_robot_angular_velocity,present_time_index,is_illumination_rotation_clockwise);
             vector<double> time_remaining_to_lose_vantage_point_status;
             auto goal_coordinates = get_goal_coordinates(lit_waypoint_time_data,present_time_index,way_points,visited_waypoints,time_per_step,time_remaining_to_lose_vantage_point_status);
             const auto present_time_step_heuristic_value = get_robot_location_heuristic_values(goal_coordinates,tentative_present_robot_angle,angle_lookup_table);

@@ -72,6 +72,9 @@ coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_way
 
 coordinate get_pit_center(const vector<coordinate> &waypoints);
 
+double get_angle(const coordinate &pit_center,
+                 const coordinate &waypoint);
+
 unordered_map<coordinate,double,my_coordinate_hasher> get_angle_lookup_table(const vector<coordinate> &way_points,
                                                                              const coordinate &pit_center);      //Returns the angles in radians
 
@@ -84,6 +87,11 @@ double get_tentative_robot_angular_change(const double &illumination_start_angle
 unordered_map<coordinate,double,my_coordinate_hasher> get_robot_location_heuristic_values( const vector<coordinate> &goal_coordinates,
                                                                                            const double &tentative_present_robot_angle,
                                                                                            const unordered_map<coordinate,double,my_coordinate_hasher> &angle_lookup_table);
+
+double get_tentative_present_robot_angle(const double &illumination_start_angle,
+                                         const double &tentative_robot_angular_velocity,
+                                         const int &present_time_index,
+                                         const bool &is_illumination_rotation_clockwise);
 
 vector<vector<double>> convert_csv_to_vector(const string &file_name);
 

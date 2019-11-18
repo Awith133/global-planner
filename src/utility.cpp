@@ -98,6 +98,23 @@ double get_tentative_robot_angular_change(const double &illumination_start_angle
 
 //=====================================================================================================================
 
+double get_tentative_present_robot_angle(const double &illumination_start_angle,
+                                         const double &tentative_robot_angular_velocity,
+                                         const int &present_time_index,
+                                         const bool &is_illumination_rotation_clockwise)
+{
+   if(is_illumination_rotation_clockwise)
+   {
+       if(illumination_start_angle - tentative_robot_angular_velocity*present_time_index<0)
+           return 2*PI - abs(illumination_start_angle - tentative_robot_angular_velocity*present_time_index);
+       else
+           return illumination_start_angle - tentative_robot_angular_velocity*present_time_index;
+   }
+    // Complete for CCW case!
+}
+
+//=====================================================================================================================
+
 int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_time_data)
 {
     int start_column_for_loop = lit_waypoint_time_data[0].size()/2;
