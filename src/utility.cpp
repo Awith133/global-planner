@@ -885,12 +885,12 @@ vector<coordinate> make_coordinate_vector_from_csv(const string &file_name)
 //=====================================================================================================================
 
 //template <typename T>
-void convert_tuple_vector_to_csv(vector<tuple<int,int,int>> time_location, const string &file_name)
+void convert_tuple_vector_to_csv(vector<tuple<int,int,int,int>> time_location, const string &file_name)
 {
     ofstream myfile(file_name);
     for (int n=0; n<time_location.size(); n++)
     {
-        myfile << get<0>(time_location[n])<<","<<get<1>(time_location[n])<<","<<get<2>(time_location[n]) << endl;
+        myfile << get<0>(time_location[n])<<","<<get<1>(time_location[n])<<","<<get<2>(time_location[n])<<","<<get<3>(time_location[n])<< endl;
     }
     cout<<"CSV file "<<file_name<<"created"<<endl;
 }

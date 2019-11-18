@@ -310,8 +310,6 @@ int main(int argc, char** argv) {
         const auto illumination_start_angle = angle_lookup_table.at(goal_coordinate);
         const coordinate last_illuminated_waypoint {144,129};
         const auto illumination_end_angle = get_angle(pit_center,last_illuminated_waypoint);
-//        const auto illumination_end_angle = 5.23; //Change this later
-//        cout<<"illumination_start_angle "<<illumination_start_angle<<"\t"<<"illumination_end_angle "<<illumination_end_angle<<endl;
         const auto tentative_robot_angular_change = get_tentative_robot_angular_change(illumination_start_angle,illumination_end_angle,is_illumination_rotation_clockwise);
         const auto total_lit_time = 1 + get_last_illuminated_time_step(lit_waypoint_time_data);
         const auto tentative_robot_angular_velocity = tentative_robot_angular_change/total_lit_time;
@@ -328,9 +326,12 @@ int main(int argc, char** argv) {
         assert(lit_waypoint_time_data.size()==way_points.size());
         double final_time_index = lit_waypoint_time_data[0].size();
         unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
-        vector<tuple<int,int,int>> time_location;
+        vector<tuple<int,int,int,int>> time_location;
         auto previous_coordinate = goal_coordinate;
-        time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y));
+        int intermediate_waypoint_label = 0;
+        int final_waypoint_label = 1;
+        int dont_repeat_waypoint_label = -1;
+        time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,final_waypoint_label));
 
         while(present_time_index<final_time_index)
         {
@@ -352,7 +353,7 @@ int main(int argc, char** argv) {
             {
                 present_time_index +=1;
                 cout<<"Path Empty"<<endl;
-                time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y));
+                time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,dont_repeat_waypoint_label));
                 present_time = present_time_index*time_per_step;            //This line makes the code: 1 point per time frame
                 continue;
             }
@@ -362,7 +363,13 @@ int main(int argc, char** argv) {
             cout<<"present_time_index: "<<present_time_index<<endl;
             present_time = present_time_index*time_per_step;                //This line makes the code: 1 point per time frame
             const auto best_goal_coordinate = mga_result.path[mga_result.path.size()-1];
-            time_location.emplace_back(make_tuple(present_time_index,best_goal_coordinate.x,best_goal_coordinate.y));
+            for(const auto &point:mga_result.path)
+            {
+                if(point!=best_goal_coordinate)
+                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,intermediate_waypoint_label));
+                else
+                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,final_waypoint_label));
+            }
             previous_coordinate = best_goal_coordinate;
             visited_waypoints.insert(best_goal_coordinate);
             start_coordinate = best_goal_coordinate;
