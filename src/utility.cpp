@@ -7,12 +7,18 @@
 #include "node.h"
 #include <iostream>
 #include <queue>
-#include <unordered_map>
 #include <fstream>
 #include <sstream>
 #include "mga_node.h"
 #include "map_width_header.h"
 #include "b_box.h"
+
+//=====================================================================================================================
+
+/// Global variables
+#define PI 3.141592654
+
+//=====================================================================================================================
 
 int GLOBAL_MAP_WIDTH;
 
@@ -22,6 +28,122 @@ bool is_destination(const coordinate &c, const coordinate &goal)
 {
     return c == goal;
 
+}
+
+//=====================================================================================================================
+
+coordinate get_pit_center(const vector<coordinate> &waypoints)
+{
+    int X_MIN = INT_MAX;
+    int Y_MIN = INT_MAX;
+    int X_MAX = INT_MIN;
+    int Y_MAX = INT_MIN;
+    for(const auto elt:waypoints)
+    {
+        auto x_coord = elt.x;
+        auto y_coord = elt.y;
+        if(x_coord>X_MAX)
+            X_MAX = x_coord;
+        else if (x_coord<X_MIN)
+            X_MIN = x_coord;
+
+        if(y_coord>Y_MAX)
+            Y_MAX = y_coord;
+        else if (y_coord<Y_MIN)
+            Y_MIN = y_coord;
+    }
+
+    return coordinate{(X_MAX+X_MIN)/2,(Y_MAX+Y_MIN)/2};
+}
+
+//=====================================================================================================================
+
+double get_angle(const coordinate &pit_center,
+        const coordinate &waypoint)
+{
+    return atan2(pit_center.x-waypoint.x,waypoint.y-pit_center.y);
+}
+
+//=====================================================================================================================
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_angle_lookup_table(const vector<coordinate> &way_points,
+                                      const coordinate &pit_center)
+{
+    unordered_map<coordinate,double,my_coordinate_hasher> angle_lookup_table;
+    for(const auto &elt:way_points)
+    {
+        auto angle = get_angle(pit_center,elt);
+        if(angle<0)
+            angle = 2*PI - abs(angle);
+        angle_lookup_table[elt] = angle;
+    }
+    return std::move(angle_lookup_table);
+}
+
+//=====================================================================================================================
+
+double get_tentative_robot_angular_change(const double &illumination_start_angle,
+                                       const double &illumination_end_angle,
+                                       const bool &is_illumination_rotation_clockwise)
+{
+    if(is_illumination_rotation_clockwise)
+    {
+        auto rem = remainder(illumination_start_angle + (2*PI) - illumination_end_angle, 2*PI); // Using remainder function can be a potential source of error
+        if(rem>0)
+            return rem;
+        else
+            return rem + 2*PI;
+    }
+}
+
+//=====================================================================================================================
+
+int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_time_data)
+{
+    int start_column_for_loop = lit_waypoint_time_data[0].size()/2;
+    cout<<"start_column_for_loop "<<start_column_for_loop<<endl;
+    bool is_any_column_element_non_zero = false;
+    for(const auto & i : lit_waypoint_time_data)
+    {
+        if(i[start_column_for_loop]!=0)
+        {
+            is_any_column_element_non_zero=true;
+            break;
+        }
+    }
+
+    if(is_any_column_element_non_zero)
+    {
+        start_column_for_loop++;
+        for(size_t j =0;j<lit_waypoint_time_data.size();j++)
+        {
+            if(lit_waypoint_time_data[j][start_column_for_loop]!=0)
+            {
+                start_column_for_loop++;
+                j=0;
+            }
+        }
+         --start_column_for_loop;
+        return start_column_for_loop;
+    }
+    else{
+        start_column_for_loop--;
+        int j=0;
+        while(true)
+        {
+            if(lit_waypoint_time_data[j][start_column_for_loop]!=0)
+                break;
+
+            if(j==lit_waypoint_time_data.size()-1)
+            {
+                start_column_for_loop--;
+                j=0;
+            }
+
+            j++;
+        }
+        return start_column_for_loop;
+    }
 }
 
 //=====================================================================================================================
@@ -409,6 +531,8 @@ double get_diagonal_distance(const coordinate &start,
     int straightSteps = max - min;
 
     return sqrt(2) * diagonalSteps + straightSteps;
+
+    return dx+dy;
 }
 
 //=====================================================================================================================
@@ -425,8 +549,22 @@ unordered_map<coordinate,double,my_coordinate_hasher> get_distances_from_central
         distances_from_central_waypoint[goal] = get_diagonal_distance(goal,central_waypoint);
     }
     return std::move(distances_from_central_waypoint);
-};
+}
 
+//=====================================================================================================================
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_distances_from_start_waypoint(const coordinate &start,
+                                                                                        const vector<coordinate> &goals)
+{
+    /// This function finds the diagonal distance between all the goals and the start waypoint
+
+    unordered_map<coordinate,double,my_coordinate_hasher> distances_from_start_waypoint;
+    for(const auto &goal:goals)
+    {
+        distances_from_start_waypoint[goal] = get_diagonal_distance(start,goal);
+    }
+    return std::move(distances_from_start_waypoint);
+}
 
 //=====================================================================================================================
 
@@ -434,11 +572,13 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
                        const multi_goal_A_star_configuration &MGA_config,
                        const vector<double> &time_remaining_to_lose_vantage_point_status,
                        unordered_map<coordinate,double,my_coordinate_hasher> distances_from_central_waypoint,
+                       unordered_map<coordinate,double,my_coordinate_hasher> distances_from_start_waypoint,
                        bool &vantage_point_reached_within_time,
                        const vector<coordinate> &goals)
 {
     double best_time_stat = INT_MIN;
     double best_reward = INT_MIN;
+    double least_distance = INT_MAX;
     MGA_Node best_goal{coordinate{-1,-1}};
 
     for(size_t i=0;i<time_remaining_to_lose_vantage_point_status.size();i++)
@@ -446,16 +586,19 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
         MGA_Node temp_mga_node{goals[i]};
         auto node_in_consideration = goal_traversal_times.find (temp_mga_node);
         const auto distance_to_central_waypoint = distances_from_central_waypoint[goals[i]];
+        const auto distance_to_start_waypoint = distances_from_start_waypoint[goals[i]];
 //        cout<<"Time taken to reach: "<<node_in_consideration->second<<endl;
 //        cout<<"time_remaining_to_lose_vantage_point_status: "<< time_remaining_to_lose_vantage_point_status[i]<<endl;
 //        cout<<"Difference inclusive of pessimistic factor "<<time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second<<endl;
 //        node_in_consideration->first.print_MGA_node();
 //        cout<<"============================================================="<<endl;
         auto time_stat = time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second;
-        if(time_stat > 0 && time_stat - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint>best_reward)
+//        if(time_stat > 0 && MGA_config.time_remaining_for_vantage_point_weight*time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint>best_reward)
+        if(time_stat > 0 && MGA_config.distance_from_central_point_weight*distance_to_central_waypoint + MGA_config.distance_from_start_point_weight*distance_to_start_waypoint <least_distance)
         {
             best_time_stat = time_stat; //Best time stat might not actually be the best time stat; It is the time stat for the best goal
-            best_reward = time_stat - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint;
+//            best_reward = MGA_config.time_remaining_for_vantage_point_weight*time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint;
+            least_distance = MGA_config.distance_from_central_point_weight*distance_to_central_waypoint + MGA_config.distance_from_start_point_weight*distance_to_start_waypoint;
             best_goal = node_in_consideration->first;
         }
     }
@@ -463,7 +606,7 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
     if(best_time_stat>0)
         vantage_point_reached_within_time=true;
 
-    cout<<"Best reward is: "<<best_reward<<endl;
+    cout<<"Best reward is: "<<least_distance<<endl;
 //    best_goal.print_MGA_node();
     return best_goal;
 }
@@ -539,7 +682,8 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
     }
     bool vantage_point_reached_within_time = false;
     auto distances_from_central_waypoint = get_distances_from_central_waypoint(goals);
-    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,std::move(distances_from_central_waypoint),vantage_point_reached_within_time,goals);
+    auto distances_from_start_waypoint = get_distances_from_start_waypoint(start,goals);
+    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,std::move(distances_from_central_waypoint),std::move(distances_from_start_waypoint),vantage_point_reached_within_time,goals);
     if(!vantage_point_reached_within_time)
         return multi_goal_A_star_return{-1,vector<coordinate> {}};
 
@@ -561,7 +705,7 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                              const rover_parameters &rover_config)
 {
     planning_map my_map{g_map,min_elevation,max_elevation}; //Pit interiors have to be made obstacle here. Tune min elevation according to that
-    const multi_goal_A_star_configuration MGA_config{2,1000000};
+    const multi_goal_A_star_configuration MGA_config{2,1,1.3,1};
     return multi_goal_astar(start_coordinate,goal_coordinates,my_map,time_remaining_to_lose_vantage_point_status,rover_config,MGA_config);
 }
 
@@ -570,24 +714,30 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
 coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_waypoint_time_data,
                                            const vector<coordinate> &way_points)
 {
-    vector<coordinate> positive_T_vantage_points_at_zero_time;
+//    vector<coordinate> positive_T_vantage_points_at_zero_time;
+    coordinate best_goal{-1,-1};
+    double least_time = INT_MAX;
     for(size_t i=0;i<lit_waypoint_time_data.size();i++)
     {
-        if(lit_waypoint_time_data[i][0]>0)
-            positive_T_vantage_points_at_zero_time.emplace_back(way_points[i]);
-    }
-
-    auto coord_time_map = get_distances_from_central_waypoint(positive_T_vantage_points_at_zero_time);
-    coordinate best_goal{-1,-1};
-    double least_dist = INT_MAX;
-    for(const auto &elt:coord_time_map)
-    {
-        if(elt.second<least_dist)
+        if(lit_waypoint_time_data[i][0]>0 && lit_waypoint_time_data[i][0]<least_time)
         {
-            best_goal = elt.first;
-            least_dist = elt.second;
+            best_goal = way_points[i];
+            least_time = lit_waypoint_time_data[i][0];
+//          positive_T_vantage_points_at_zero_time.emplace_back(way_points[i]);
         }
     }
+
+//    auto coord_time_map = get_distances_from_central_waypoint(positive_T_vantage_points_at_zero_time);
+//    coordinate best_goal{-1,-1};
+//    double least_dist = INT_MAX;
+//    for(const auto &elt:coord_time_map)
+//    {
+//        if(elt.second<least_dist)
+//        {
+//            best_goal = elt.first;
+//            least_dist = elt.second;
+//        }
+//    }
     return best_goal;
 }
 
@@ -603,7 +753,7 @@ vector<coordinate> get_goal_coordinates(const vector<vector<double>> &lit_waypoi
     vector<coordinate> goal_coordinates;
     for(size_t i=0;i<lit_waypoint_time_data.size();i++)
     {
-//        if(lit_waypoint_time_data[i][present_time_index]>0 && !visited_waypoints.count(original_waypoints[i]))
+//      if(lit_waypoint_time_data[i][present_time_index]>0 && !visited_waypoints.count(original_waypoints[i]))
     if(lit_waypoint_time_data[i][present_time_index]>0)
         {
             goal_coordinates.emplace_back(original_waypoints[i]);

@@ -10,6 +10,7 @@
 #include "MGA_config.h"
 #include <climits>
 #include <unordered_set>
+#include <unordered_map>
 
 bool is_destination(const coordinate &c, const coordinate &goal);
 
@@ -46,6 +47,9 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
                                     const rover_parameters &rover_config,
                                     const multi_goal_A_star_configuration &MGA_config);
 
+///
+/// This finds the potential goal coordinates, their time_remaining_to_lose_vantage_point_status and the angular distance heuristic values
+///
 vector<coordinate> get_goal_coordinates(const vector<vector<double>> &lit_waypoint_time_data,
                                         const int &present_time_index,
                                         const vector<coordinate> &way_points,
@@ -63,6 +67,17 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
 
 coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_waypoint_time_data,
                                            const vector<coordinate> &way_points);
+
+coordinate get_pit_center(const vector<coordinate> &waypoints);
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_angle_lookup_table(const vector<coordinate> &way_points,
+                                                                             const coordinate &pit_center);      //Returns the angles in radians
+
+int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_time_data);
+
+double get_tentative_robot_angular_change(const double &illumination_start_angle,
+                                          const double &illumination_end_angle,
+                                          const bool &is_illumination_rotation_clockwise);
 
 vector<vector<double>> convert_csv_to_vector(const string &file_name);
 

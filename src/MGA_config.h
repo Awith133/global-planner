@@ -11,8 +11,15 @@ struct multi_goal_A_star_configuration
 {
     double pessimistic_factor;
     double distance_from_central_point_weight;
-    explicit multi_goal_A_star_configuration(double pessismistic_time_factor = 2,double new_distance_from_central_point_weight = 100):
-            pessimistic_factor(pessismistic_time_factor),distance_from_central_point_weight(new_distance_from_central_point_weight){}
+    double time_remaining_for_vantage_point_weight;
+    double distance_from_start_point_weight;
+    explicit multi_goal_A_star_configuration(double pessismistic_time_factor = 2,
+                                             double new_distance_from_central_point_weight = 100,
+                                             double new_time_remaining_for_vantage_point_weight=1,
+                                             double new_distance_from_start_point_weight = 1):
+            pessimistic_factor(pessismistic_time_factor),distance_from_central_point_weight(new_distance_from_central_point_weight),
+            time_remaining_for_vantage_point_weight(new_time_remaining_for_vantage_point_weight),
+            distance_from_start_point_weight(new_distance_from_start_point_weight){}
 
 };
 

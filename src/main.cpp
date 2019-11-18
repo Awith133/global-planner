@@ -19,7 +19,6 @@ using namespace std;
 //=====================================================================================================================
 /// Global variables
 
-int MAP_LENGTH;
 int MAP_WIDTH;
 
 //=====================================================================================================================
@@ -273,6 +272,7 @@ int main(int argc, char** argv) {
         const auto map = convert_csv_to_vector("data/occupancy_global_map.csv");
         const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
         auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
+        bool is_illumination_rotation_clockwise = true; //To be read later
 
         MAP_WIDTH = map[0].size();
 
@@ -303,6 +303,20 @@ int main(int argc, char** argv) {
         const string trajectory_file_name = "data/lander_to_pit_trajectory.csv";
         convert_vector_to_csv(trajectory,trajectory_file_name);
 
+///     Pre-process data for Multi Goal A*
+        const auto pit_center = get_pit_center(way_points);
+        pit_center.print_coordinate();
+        const auto angle_lookup_table = get_angle_lookup_table(way_points,pit_center);
+        const auto illumination_start_angle = angle_lookup_table.at(goal_coordinate);
+//        const auto illumination_end_position = get_last_illuminated_coordinate(lit_waypoint_time_data,way_points);
+        const auto illumination_end_angle = 5.23; //Change this later
+        cout<<"illumination_start_angle "<<illumination_start_angle<<"\t"<<"illumination_end_angle "<<illumination_end_angle<<endl;
+        const auto tentative_robot_angular_change = get_tentative_robot_angular_change(illumination_start_angle,illumination_end_angle,is_illumination_rotation_clockwise);
+        const auto tentative_robot_angular_velocity = tentative_robot_angular_change/lit_waypoint_time_data[0].size();
+        const auto total_lit_time = 1 + get_last_illuminated_time_step(lit_waypoint_time_data);
+        cout<<"total_lit_time "<<total_lit_time<<endl;
+        cout<<"tentative_robot_angular_change "<<tentative_robot_angular_change<<endl;
+
 ///  Multi Goal A* Planning for illuminated coordinates
         double time_per_step = 700;
         double present_time = 0;
@@ -311,7 +325,7 @@ int main(int argc, char** argv) {
         double final_time_index = lit_waypoint_time_data[0].size();
         unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
         vector<tuple<int,int,int>> time_location;
-        auto previous_coordinate = start_coordinate;
+        auto previous_coordinate = goal_coordinate;
         time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y));
 
         while(present_time_index<final_time_index)
@@ -321,9 +335,11 @@ int main(int argc, char** argv) {
 //            start_coordinate.print_coordinate();
 //            cout<<"=================================="<<endl;
             auto start = std::chrono::high_resolution_clock::now();
+            auto tentative_present_robot_angle = illumination_start_angle + tentative_robot_angular_velocity*present_time_index;
             vector<double> time_remaining_to_lose_vantage_point_status;
             auto goal_coordinates = get_goal_coordinates(lit_waypoint_time_data,present_time_index,way_points,visited_waypoints,time_per_step,time_remaining_to_lose_vantage_point_status);
-            assert(time_remaining_to_lose_vantage_point_status.size()==goal_coordinates.size());
+//            auto robot_location_heuristic_values = get_robot_location_heuristic_values()
+            //assert(time_remaining_to_lose_vantage_point_status.size()==goal_coordinates.size());
             auto mga_result = get_path_to_vantage_point(map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,start_coordinate,goal_coordinates,time_remaining_to_lose_vantage_point_status,rover_config);
             auto stop = std::chrono::high_resolution_clock::now();
             auto time_taken_to_plan = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
