@@ -44,6 +44,7 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
                                     const vector<coordinate> &goals,
                                     const planning_map &elevation_map,
                                     const vector<double> &time_remaining_to_lose_vantage_point_status,
+                                    const unordered_map<coordinate,double,my_coordinate_hasher> &robot_location_heuristic_values,
                                     const rover_parameters &rover_config,
                                     const multi_goal_A_star_configuration &MGA_config);
 
@@ -63,6 +64,7 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                             const coordinate &start_coordinate,
                                             const vector<coordinate> &goal_coordinates,
                                             const vector<double> &time_remaining_to_lose_vantage_point_status,
+                                            const unordered_map<coordinate,double,my_coordinate_hasher> &robot_location_heuristic_values,
                                             const rover_parameters &rover_config);
 
 coordinate get_goal_coordinate_from_lander(const vector<vector<double>> &lit_waypoint_time_data,
@@ -78,6 +80,10 @@ int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_ti
 double get_tentative_robot_angular_change(const double &illumination_start_angle,
                                           const double &illumination_end_angle,
                                           const bool &is_illumination_rotation_clockwise);
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_robot_location_heuristic_values( const vector<coordinate> &goal_coordinates,
+                                                                                           const double &tentative_present_robot_angle,
+                                                                                           const unordered_map<coordinate,double,my_coordinate_hasher> &angle_lookup_table);
 
 vector<vector<double>> convert_csv_to_vector(const string &file_name);
 

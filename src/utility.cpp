@@ -105,7 +105,7 @@ int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_ti
     bool is_any_column_element_non_zero = false;
     for(const auto & i : lit_waypoint_time_data)
     {
-        if(i[start_column_for_loop]!=0)
+        if(i[start_column_for_loop]!=-1)
         {
             is_any_column_element_non_zero=true;
             break;
@@ -117,7 +117,7 @@ int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_ti
         start_column_for_loop++;
         for(size_t j =0;j<lit_waypoint_time_data.size();j++)
         {
-            if(lit_waypoint_time_data[j][start_column_for_loop]!=0)
+            if(lit_waypoint_time_data[j][start_column_for_loop]!=-1)
             {
                 start_column_for_loop++;
                 j=0;
@@ -131,7 +131,7 @@ int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_ti
         int j=0;
         while(true)
         {
-            if(lit_waypoint_time_data[j][start_column_for_loop]!=0)
+            if(lit_waypoint_time_data[j][start_column_for_loop]!=-1)
                 break;
 
             if(j==lit_waypoint_time_data.size()-1)
@@ -146,6 +146,20 @@ int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_ti
     }
 }
 
+//=====================================================================================================================
+
+unordered_map<coordinate,double,my_coordinate_hasher> get_robot_location_heuristic_values( const vector<coordinate> &goal_coordinates,
+                                                                                           const double &tentative_present_robot_angle,
+                                                                                           const unordered_map<coordinate,double,my_coordinate_hasher> &angle_lookup_table)
+{
+    unordered_map<coordinate,double,my_coordinate_hasher> robot_location_heuristic_values;
+    for(const auto &goal_coordinate:goal_coordinates)
+    {
+        robot_location_heuristic_values[goal_coordinate] = abs(angle_lookup_table.at(goal_coordinate) - tentative_present_robot_angle);
+    }
+
+    return std::move(robot_location_heuristic_values);
+}
 //=====================================================================================================================
 
 vector<coordinate> get_neighbors(const int &x,
@@ -571,14 +585,14 @@ unordered_map<coordinate,double,my_coordinate_hasher> get_distances_from_start_w
 MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_traversal_times,
                        const multi_goal_A_star_configuration &MGA_config,
                        const vector<double> &time_remaining_to_lose_vantage_point_status,
+                       const unordered_map<coordinate,double,my_coordinate_hasher> &robot_location_heuristic_values,
                        unordered_map<coordinate,double,my_coordinate_hasher> distances_from_central_waypoint,
                        unordered_map<coordinate,double,my_coordinate_hasher> distances_from_start_waypoint,
                        bool &vantage_point_reached_within_time,
                        const vector<coordinate> &goals)
 {
     double best_time_stat = INT_MIN;
-    double best_reward = INT_MIN;
-    double least_distance = INT_MAX;
+    double least_heuristic = INT_MAX;
     MGA_Node best_goal{coordinate{-1,-1}};
 
     for(size_t i=0;i<time_remaining_to_lose_vantage_point_status.size();i++)
@@ -594,11 +608,12 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
 //        cout<<"============================================================="<<endl;
         auto time_stat = time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second;
 //        if(time_stat > 0 && MGA_config.time_remaining_for_vantage_point_weight*time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint>best_reward)
-        if(time_stat > 0 && MGA_config.distance_from_central_point_weight*distance_to_central_waypoint + MGA_config.distance_from_start_point_weight*distance_to_start_waypoint <least_distance)
+//        if(time_stat > 0 && MGA_config.distance_from_central_point_weight*distance_to_central_waypoint + MGA_config.distance_from_start_point_weight*distance_to_start_waypoint <least_distance)
+        if(time_stat >0 && robot_location_heuristic_values.at(goals[i])<least_heuristic)
         {
             best_time_stat = time_stat; //Best time stat might not actually be the best time stat; It is the time stat for the best goal
 //            best_reward = MGA_config.time_remaining_for_vantage_point_weight*time_remaining_to_lose_vantage_point_status[i] - MGA_config.pessimistic_factor*node_in_consideration->second - MGA_config.distance_from_central_point_weight*distance_to_central_waypoint;
-            least_distance = MGA_config.distance_from_central_point_weight*distance_to_central_waypoint + MGA_config.distance_from_start_point_weight*distance_to_start_waypoint;
+            least_heuristic = robot_location_heuristic_values.at(goals[i]);
             best_goal = node_in_consideration->first;
         }
     }
@@ -606,7 +621,7 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
     if(best_time_stat>0)
         vantage_point_reached_within_time=true;
 
-    cout<<"Best reward is: "<<least_distance<<endl;
+    cout<<"Best reward is: "<<least_heuristic<<endl;
 //    best_goal.print_MGA_node();
     return best_goal;
 }
@@ -637,6 +652,7 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
                                   const vector<coordinate> &goals,
                                   const planning_map &elevation_map,
                                   const vector<double> &time_remaining_to_lose_vantage_point_status,
+                                  const unordered_map<coordinate,double,my_coordinate_hasher> &robot_location_heuristic_values,
                                   const rover_parameters &rover_config,
                                   const multi_goal_A_star_configuration &MGA_config)
 {
@@ -683,7 +699,7 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
     bool vantage_point_reached_within_time = false;
     auto distances_from_central_waypoint = get_distances_from_central_waypoint(goals);
     auto distances_from_start_waypoint = get_distances_from_start_waypoint(start,goals);
-    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,std::move(distances_from_central_waypoint),std::move(distances_from_start_waypoint),vantage_point_reached_within_time,goals);
+    auto best_goal = get_best_goal(goal_traversal_times,MGA_config,time_remaining_to_lose_vantage_point_status,robot_location_heuristic_values,std::move(distances_from_central_waypoint),std::move(distances_from_start_waypoint),vantage_point_reached_within_time,goals);
     if(!vantage_point_reached_within_time)
         return multi_goal_A_star_return{-1,vector<coordinate> {}};
 
@@ -702,11 +718,12 @@ multi_goal_A_star_return get_path_to_vantage_point(const vector<vector<double>> 
                                              const coordinate &start_coordinate,
                                              const vector<coordinate> &goal_coordinates,
                                              const vector<double> &time_remaining_to_lose_vantage_point_status,
+                                             const unordered_map<coordinate,double,my_coordinate_hasher> &robot_location_heuristic_values,
                                              const rover_parameters &rover_config)
 {
     planning_map my_map{g_map,min_elevation,max_elevation}; //Pit interiors have to be made obstacle here. Tune min elevation according to that
     const multi_goal_A_star_configuration MGA_config{2,1,1.3,1};
-    return multi_goal_astar(start_coordinate,goal_coordinates,my_map,time_remaining_to_lose_vantage_point_status,rover_config,MGA_config);
+    return multi_goal_astar(start_coordinate,goal_coordinates,my_map,time_remaining_to_lose_vantage_point_status,robot_location_heuristic_values,rover_config,MGA_config);
 }
 
 //=====================================================================================================================
