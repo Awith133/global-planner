@@ -272,6 +272,7 @@ int main(int argc, char** argv) {
         const auto map = convert_csv_to_vector("data/occupancy_global_map.csv");
         const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
         auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
+        const auto illumination_endpoint_index = stoi(read_text_file("data/pit_info.txt"));
         bool is_illumination_rotation_clockwise = true; //To be read later
 
         MAP_WIDTH = map[0].size();
@@ -308,7 +309,7 @@ int main(int argc, char** argv) {
         pit_center.print_coordinate();
         const auto angle_lookup_table = get_angle_lookup_table(way_points,pit_center);
         const auto illumination_start_angle = angle_lookup_table.at(goal_coordinate);
-        const coordinate last_illuminated_waypoint {144,129};
+        const auto last_illuminated_waypoint  = way_points[illumination_endpoint_index];
         const auto illumination_end_angle = get_angle(pit_center,last_illuminated_waypoint);
         const auto tentative_robot_angular_change = get_tentative_robot_angular_change(illumination_start_angle,illumination_end_angle,is_illumination_rotation_clockwise);
         const auto total_lit_time = 1 + get_last_illuminated_time_step(lit_waypoint_time_data);
