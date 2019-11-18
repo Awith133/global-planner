@@ -61,7 +61,10 @@ coordinate get_pit_center(const vector<coordinate> &waypoints)
 double get_angle(const coordinate &pit_center,
         const coordinate &waypoint)
 {
-    return atan2(pit_center.x-waypoint.x,waypoint.y-pit_center.y);
+    auto angle = atan2(pit_center.x-waypoint.x,waypoint.y-pit_center.y);
+    if(angle<0)
+        angle = 2*PI - abs(angle);
+    return angle;
 }
 
 //=====================================================================================================================
@@ -73,8 +76,6 @@ unordered_map<coordinate,double,my_coordinate_hasher> get_angle_lookup_table(con
     for(const auto &elt:way_points)
     {
         auto angle = get_angle(pit_center,elt);
-        if(angle<0)
-            angle = 2*PI - abs(angle);
         angle_lookup_table[elt] = angle;
     }
     return std::move(angle_lookup_table);
@@ -892,7 +893,7 @@ void convert_tuple_vector_to_csv(vector<tuple<int,int,int,int>> time_location, c
     {
         myfile << get<0>(time_location[n])<<","<<get<1>(time_location[n])<<","<<get<2>(time_location[n])<<","<<get<3>(time_location[n])<< endl;
     }
-    cout<<"CSV file "<<file_name<<"created"<<endl;
+    cout<<"CSV file "<<file_name<<" created"<<endl;
 }
 
 //=====================================================================================================================

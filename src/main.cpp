@@ -314,10 +314,10 @@ int main(int argc, char** argv) {
         const auto tentative_robot_angular_change = get_tentative_robot_angular_change(illumination_start_angle,illumination_end_angle,is_illumination_rotation_clockwise);
         const auto total_lit_time = 1 + get_last_illuminated_time_step(lit_waypoint_time_data);
         const auto tentative_robot_angular_velocity = tentative_robot_angular_change/total_lit_time;
-//        cout<<"get_tentative_robot_angular_change "<<tentative_robot_angular_change<<endl;
-//        cout<<"total_lit_time "<<total_lit_time<<endl;
-//        cout<<"tentative_robot_angular_velocity "<<tentative_robot_angular_velocity<<endl;
-//        cout<<"illumination_start_angle "<<illumination_start_angle<<endl;
+        cout<<"get_tentative_robot_angular_change "<<tentative_robot_angular_change<<endl;
+        cout<<"total_lit_time "<<total_lit_time<<endl;
+        cout<<"tentative_robot_angular_velocity "<<tentative_robot_angular_velocity<<endl;
+        cout<<"illumination_start_angle "<<illumination_start_angle<<endl;
         cout<<"illumination_end_angle "<<illumination_end_angle<<endl;
 
 ///  Multi Goal A* Planning for illuminated coordinates
@@ -327,12 +327,14 @@ int main(int argc, char** argv) {
         assert(lit_waypoint_time_data.size()==way_points.size());
         double final_time_index = lit_waypoint_time_data[0].size();
         unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
+        vector<tuple<int,int,int,int>> path_location;
         vector<tuple<int,int,int,int>> time_location;
         auto previous_coordinate = goal_coordinate;
         int intermediate_waypoint_label = 0;
         int final_waypoint_label = 1;
         int dont_repeat_waypoint_label = -1;
         time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,final_waypoint_label));
+        path_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,final_waypoint_label));
 
         while(present_time_index<final_time_index)
         {
@@ -355,6 +357,7 @@ int main(int argc, char** argv) {
                 present_time_index +=1;
                 cout<<"Path Empty"<<endl;
                 time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,dont_repeat_waypoint_label));
+                path_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,dont_repeat_waypoint_label));
                 present_time = present_time_index*time_per_step;            //This line makes the code: 1 point per time frame
                 continue;
             }
@@ -367,9 +370,12 @@ int main(int argc, char** argv) {
             for(const auto &point:mga_result.path)
             {
                 if(point!=best_goal_coordinate)
-                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,intermediate_waypoint_label));
+                    path_location.emplace_back(make_tuple(present_time_index,point.x,point.y,intermediate_waypoint_label));
                 else
-                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,final_waypoint_label));
+                {
+                    path_location.emplace_back(make_tuple(present_time_index,point.x,point.y,final_waypoint_label));
+                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,intermediate_waypoint_label));
+                }
             }
             previous_coordinate = best_goal_coordinate;
             visited_waypoints.insert(best_goal_coordinate);
@@ -377,6 +383,7 @@ int main(int argc, char** argv) {
         }
         cout<<"Waypoints visited: "<<visited_waypoints.size()<<endl;
         convert_tuple_vector_to_csv(time_location,"data/time_location_mapping.csv");
+        convert_tuple_vector_to_csv(path_location,"data/path_location_mapping.csv");
     }
 
     else if(strcmp(argv[1],"lander_to_pit") == 0)
