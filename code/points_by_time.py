@@ -93,8 +93,8 @@ if __name__ == "__main__":
         values = column_index[first_occurance]
         last_end = onlyday_litindices[np.argmin(values)]
         last_start = onlyday_litindices[np.argmax(values)]
-
-        np.savetxt("data/pit_info.txt", np.array([last_end],dtype=int))
+        clockwise = 1 if choice_illumination>1 else 0
+        np.savetxt("data/pit_info.txt", np.array([last_end, clockwise],dtype=int), fmt='%i')
         np.save("data/litwaypointstimeleft.npy", illuminationtimeleft)
         np.savetxt("data/lit_waypoints.csv", illuminationtimeleft, delimiter=",")
         # np.save("data/pit_center.npy", )
