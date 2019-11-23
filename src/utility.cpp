@@ -87,14 +87,24 @@ double get_tentative_robot_angular_change(const double &illumination_start_angle
                                        const double &illumination_end_angle,
                                        const bool &is_illumination_rotation_clockwise)
 {
+    double rem;
     if(is_illumination_rotation_clockwise)
     {
-        auto rem = remainder(illumination_start_angle + (2*PI) - illumination_end_angle, 2*PI); // Using remainder function can be a potential source of error
-        if(rem>0)
-            return rem;
-        else
-            return rem + 2*PI;
+        rem = remainder(illumination_start_angle + (2 * PI) - illumination_end_angle, 2 * PI); // Using remainder function can be a potential source of error
     }
+    else{
+        rem = remainder((2*PI) - illumination_start_angle + illumination_end_angle, 2*PI); // Using remainder function can be a potential source of error
+
+        }
+
+    if(rem>0) {
+        if (rem < PI / 2)
+            rem = rem + 2 * PI;
+        return rem;
+    }
+    else
+      return rem + 2*PI;
+
 }
 
 //=====================================================================================================================
@@ -111,7 +121,12 @@ double get_tentative_present_robot_angle(const double &illumination_start_angle,
        else
            return illumination_start_angle - tentative_robot_angular_velocity*present_time_index;
    }
-    // Complete for CCW case!
+   else{
+        if(illumination_start_angle + tentative_robot_angular_velocity*present_time_index>2*PI)
+            return abs(2*PI - (illumination_start_angle + tentative_robot_angular_velocity*present_time_index));
+        else
+            return illumination_start_angle + tentative_robot_angular_velocity*present_time_index;
+   }
 }
 
 //=====================================================================================================================
@@ -119,7 +134,6 @@ double get_tentative_present_robot_angle(const double &illumination_start_angle,
 int get_last_illuminated_time_step(const vector<vector<double>> &lit_waypoint_time_data)
 {
     int start_column_for_loop = lit_waypoint_time_data[0].size()/2;
-    cout<<"start_column_for_loop "<<start_column_for_loop<<endl;
     bool is_any_column_element_non_zero = false;
     for(const auto & i : lit_waypoint_time_data)
     {
@@ -639,7 +653,7 @@ MGA_Node get_best_goal(unordered_map<MGA_Node,double,MGA_node_hasher> &goal_trav
     if(best_time_stat>0)
         vantage_point_reached_within_time=true;
 
-    cout<<"Best reward is: "<<least_heuristic<<endl;
+//    cout<<"Best reward is: "<<least_heuristic<<endl;
 //    best_goal.print_MGA_node();
     return best_goal;
 }
@@ -723,8 +737,8 @@ multi_goal_A_star_return multi_goal_astar(const coordinate &start,
 
     const auto pessimistic_time_estimate_to_reach_best_goal = MGA_config.pessimistic_factor*goal_traversal_times[best_goal];
     auto path = MGA_backtrack(start_node,best_goal,node_map);
-    cout<<"Path size is "<<path.size()<<endl;
-    cout<<"Time taken to reach waypoint "<<pessimistic_time_estimate_to_reach_best_goal<<endl;
+//    cout<<"Path size is "<<path.size()<<endl;
+//    cout<<"Time taken to reach waypoint "<<pessimistic_time_estimate_to_reach_best_goal<<endl;
     return multi_goal_A_star_return{pessimistic_time_estimate_to_reach_best_goal,path};
 }
 
@@ -906,7 +920,19 @@ string read_text_file(const string &file_name)
 
 // extract one word ignoring leading spaces and stopping at the next space
     ifs >> word;
+//    cout<<"word is"<<word<<endl;
     return word;
+}
+
+//=====================================================================================================================
+
+pair<string,string> read_pit_info_file(const string &file_name)
+{
+    std::ifstream ifs(file_name);
+    std::string word1,word2;
+    ifs >> word1;
+    ifs >> word2;
+    return make_pair(word1,word2);
 }
 
 //=====================================================================================================================

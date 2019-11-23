@@ -103,3 +103,5 @@ vector<coordinate> make_coordinate_vector_from_csv(const string &file_name);
 void convert_tuple_vector_to_csv(vector<tuple<int,int,int,int>> time_location,const string &file_name);
 
 string read_text_file(const string &file_name);
+
+pair<string,string> read_pit_info_file(const string &file_name);

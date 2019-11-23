@@ -272,8 +272,12 @@ int main(int argc, char** argv) {
         const auto map = convert_csv_to_vector("data/occupancy_global_map.csv");
         const auto start_quadrant_index = stoi(read_text_file("data/illumination_start_quadrant.txt"));
         auto lit_waypoint_time_data = convert_csv_to_vector("data/lit_waypoints.csv");
-        const auto illumination_endpoint_index = stoi(read_text_file("data/pit_info.txt"));
+//        const auto illumination_endpoint_index = stoi(read_text_file("data/pit_info.txt"));
+        const auto pit_info = read_pit_info_file("data/pit_info.txt");
         bool is_illumination_rotation_clockwise = true; //To be read later
+        const auto illumination_endpoint_index = stoi(get<0>(pit_info));
+        if(stoi(get<1>(pit_info)))
+            is_illumination_rotation_clockwise = false;
 
         MAP_WIDTH = map[0].size();
 
@@ -319,6 +323,7 @@ int main(int argc, char** argv) {
         cout<<"tentative_robot_angular_velocity "<<tentative_robot_angular_velocity<<endl;
         cout<<"illumination_start_angle "<<illumination_start_angle<<endl;
         cout<<"illumination_end_angle "<<illumination_end_angle<<endl;
+        cout<<"illumination_endpoint_index "<<illumination_endpoint_index<<endl;
 
 ///  Multi Goal A* Planning for illuminated coordinates
         double time_per_step = 700;
@@ -355,7 +360,7 @@ int main(int argc, char** argv) {
             if(mga_result.path.empty())
             {
                 present_time_index +=1;
-                cout<<"Path Empty"<<endl;
+//                cout<<"Path Empty"<<endl;
                 time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,dont_repeat_waypoint_label));
                 path_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,dont_repeat_waypoint_label));
                 present_time = present_time_index*time_per_step;            //This line makes the code: 1 point per time frame
@@ -364,7 +369,7 @@ int main(int argc, char** argv) {
             present_time+= mga_result.time_to_reach_best_goal;
 //            g.path = mga_result.path;       ///This needs to be sent to the local planner
             present_time_index = ceil(present_time/time_per_step);
-            cout<<"present_time_index: "<<present_time_index<<endl;
+//            cout<<"present_time_index: "<<present_time_index<<endl;
             present_time = present_time_index*time_per_step;                //This line makes the code: 1 point per time frame
             const auto best_goal_coordinate = mga_result.path[mga_result.path.size()-1];
             for(const auto &point:mga_result.path)
