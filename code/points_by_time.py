@@ -14,7 +14,7 @@ class Pit:
         line[2] = 0
         line = line.reshape(-1,1)
         # import pdb; pdb.set_trace()
-        listofindices = np.where((line.T[:,0:2] @ self.points_centered.T)[0] > 0)[0]
+        listofindices = np.where((line.T[:,0:2] @ self.points_centered.T)[0] < 0)[0]
         return listofindices
 
     def display(self, direction, listofindices):
@@ -83,10 +83,11 @@ if __name__ == "__main__":
             while(not len(np.where(mask[:,mid]==1)[0])==0):
                 mid +=1
             mid = mid-1
-
+            
         onlyday_litindices = np.where(mask[:,mid]==1)[0]
         onlyday_mask = mask[:,:mid+1]
         onlyday_mask = onlyday_mask[:,::-1]
+        onlyday_mask = np.hstack((onlyday_mask, np.zeros((onlyday_mask.shape[0],1))))
         row_index, column_index = np.where(onlyday_mask[onlyday_litindices,:]==0)
         _, first_occurance = np.unique(row_index, return_index=True)
         
