@@ -291,7 +291,7 @@ int main(int argc, char** argv) {
         const unordered_map<int,coordinate> start_positions {{1,coordinate{0,0}},
                                                              {2,coordinate{0,208}},
                                                              {3,coordinate{static_cast<int>(map.size()-1),static_cast<int>(map[0].size()-1)}},
-                                                             {4,coordinate{static_cast<int>(210),50}}};
+                                                             {4,coordinate{static_cast<int>(210),64}}};
 
 
         coordinate start_coordinate = start_positions.at(start_quadrant_index);
