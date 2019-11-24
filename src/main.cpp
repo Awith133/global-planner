@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
 //      auto way_points = generate_way_points(pit_edges,map,threshold_dist_from_pit,pit_interior_points);     //Uncomment this if you want separate waypoints and pit edges
 
         const unordered_map<int,coordinate> start_positions {{1,coordinate{0,0}},
-                                                             {2,coordinate{0,208}},
+                                                             {2,coordinate{80,182}},
                                                              {3,coordinate{static_cast<int>(map.size()-1),static_cast<int>(map[0].size()-1)}},
                                                              {4,coordinate{static_cast<int>(210),64}}};
 
@@ -340,6 +340,7 @@ int main(int argc, char** argv) {
         int dont_repeat_waypoint_label = -1;
         time_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,final_waypoint_label));
         path_location.emplace_back(make_tuple(present_time_index,previous_coordinate.x,previous_coordinate.y,final_waypoint_label));
+        start_coordinate = goal_coordinate;
 
         while(present_time_index<final_time_index)
         {
@@ -379,7 +380,7 @@ int main(int argc, char** argv) {
                 else
                 {
                     path_location.emplace_back(make_tuple(present_time_index,point.x,point.y,final_waypoint_label));
-                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,intermediate_waypoint_label));
+                    time_location.emplace_back(make_tuple(present_time_index,point.x,point.y,final_waypoint_label));
                 }
             }
             previous_coordinate = best_goal_coordinate;
