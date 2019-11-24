@@ -290,7 +290,8 @@ int main(int argc, char** argv) {
 
         const unordered_map<int,coordinate> start_positions {{1,coordinate{0,0}},
                                                              {2,coordinate{80,182}},
-                                                             {3,coordinate{static_cast<int>(map.size()-1),static_cast<int>(map[0].size()-1)}},
+                                                             {3,coordinate{237,248}},
+//                                                             {3,coordinate{static_cast<int>(map.size()-1),static_cast<int>(map[0].size()-1)}},
                                                              {4,coordinate{static_cast<int>(210),64}}};
 
 
@@ -331,6 +332,7 @@ int main(int argc, char** argv) {
         int present_time_index = 0;
         assert(lit_waypoint_time_data.size()==way_points.size());
         double final_time_index = lit_waypoint_time_data[0].size();
+//        double final_time_index = total_lit_time;
         unordered_set<coordinate,my_coordinate_hasher> visited_waypoints;
         vector<tuple<int,int,int,int>> path_location;
         vector<tuple<int,int,int,int>> time_location;
