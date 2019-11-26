@@ -14,4 +14,6 @@ python3 code/points_by_time.py $1
 
 ./Global_Planner around_pit
 
+python3 Python_viz/display_global_plan.py
+
 python3 code/visualize.py

@@ -25,7 +25,7 @@ if __name__ == "__main__":
     if(len(sys.argv[1:]) == 1):
         choice_illumination = int(sys.argv[1])
         print("You have chosen the pit ID: ",choice_illumination)
-        illumination_file_names = ['moon_rel_positions_44_25', 'moon_rel_positions_-86_43.mat', 'moon_rel_positions_-87_-8']
+        illumination_file_names = ['moon_rel_positions_44_25', 'moon_rel_positions_28_25', 'moon_rel_positions_-86_43.mat', 'moon_rel_positions_-34_25']
         if(choice_illumination>len(illumination_file_names)):
             choice_illumination = 1
         illumination = loadmat("data/" + illumination_file_names[choice_illumination-1])
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             while(not len(np.where(mask[:,mid]==1)[0])==0):
                 mid +=1
             mid = mid-1
-            
+
         onlyday_litindices = np.where(mask[:,mid]==1)[0]
         onlyday_mask = mask[:,:mid+1]
         onlyday_mask = onlyday_mask[:,::-1]
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         values = column_index[first_occurance]
         last_end = onlyday_litindices[np.argmin(values)]
         last_start = onlyday_litindices[np.argmax(values)]
-        clockwise = 1 if choice_illumination>1 else 0
+        clockwise = 1 if choice_illumination>2 else 0
         np.savetxt("data/pit_info.txt", np.array([last_end, clockwise],dtype=int), fmt='%i')
         np.save("data/litwaypointstimeleft.npy", illuminationtimeleft)
         np.savetxt("data/lit_waypoints.csv", illuminationtimeleft, delimiter=",")
