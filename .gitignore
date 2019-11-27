@@ -2,6 +2,8 @@ data/lit_waypoints.csv
 data/litwaypointstimeleft.npy
 data/pit_interior.csv
 data/pit_info.csv
+pattern1
+
 # Prerequisites
 *.d
 
