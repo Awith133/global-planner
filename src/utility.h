@@ -11,6 +11,8 @@
 #include <climits>
 #include <unordered_set>
 #include <unordered_map>
+#include <cmath>
+#include <algorithm>
 
 bool is_destination(const coordinate &c, const coordinate &goal);
 

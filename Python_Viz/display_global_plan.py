@@ -2,12 +2,13 @@
 
 from PIL import Image
 import sys
-import imageio
+# import imageio
+sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
 import cv2
 import numpy as np
 import csv
 from numpy import genfromtxt
-import ipdb
+# import ipdb
 import matplotlib.pyplot as plt
 
 def main():
@@ -33,7 +34,7 @@ def main():
     for x,y in trajectory:
         cv2.circle(three_channel_image_copy,(y, x), 1, (0,0,255), -1)   
           
-    cv2.imshow("algo_pit_edges_only", three_channel_image_copy);
+    cv2.imshow("algo_pit_edges_only", three_channel_image_copy)
 
     ### MAP IMAGE FILE ### 
     global_plan_location = "data/global_plan.png"

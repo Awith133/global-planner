@@ -5,6 +5,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
+#include <math.h>
+#include <string.h>
+#include <assert.h>
 #include "unit_tests.h"
 //#include "convert_img_to_map.h"
 #include "coordinate.h"
@@ -350,15 +353,15 @@ int main(int argc, char** argv) {
 //            cout<<"Start Position: "<<"\t";
 //            start_coordinate.print_coordinate();
 //            cout<<"=================================="<<endl;
-            auto start = std::chrono::high_resolution_clock::now();
+            auto start = chrono::high_resolution_clock::now();
             auto tentative_present_robot_angle = get_tentative_present_robot_angle(illumination_start_angle,tentative_robot_angular_velocity,present_time_index,is_illumination_rotation_clockwise);
             vector<double> time_remaining_to_lose_vantage_point_status;
             auto goal_coordinates = get_goal_coordinates(lit_waypoint_time_data,present_time_index,way_points,visited_waypoints,time_per_step,time_remaining_to_lose_vantage_point_status);
             const auto present_time_step_heuristic_value = get_robot_location_heuristic_values(goal_coordinates,tentative_present_robot_angle,angle_lookup_table);
             //assert(time_remaining_to_lose_vantage_point_status.size()==goal_coordinates.size());
             auto mga_result = get_path_to_vantage_point(map,MIN_TRAVERSABLE_ELEVATION,MAX_TRAVERSABLE_ELEVATION,start_coordinate,goal_coordinates,time_remaining_to_lose_vantage_point_status,present_time_step_heuristic_value,rover_config);
-            auto stop = std::chrono::high_resolution_clock::now();
-            auto time_taken_to_plan = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+            auto stop = chrono::high_resolution_clock::now();
+            auto time_taken_to_plan = chrono::duration_cast<chrono::seconds>(stop - start);
             present_time+= static_cast<double>(time_taken_to_plan.count());
             if(mga_result.path.empty())
             {

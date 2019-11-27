@@ -7,13 +7,14 @@
 #include <random>
 #include <iomanip>
 #include <string>
+#include <chrono>
 
 using namespace std;
 
 //=====================================================================================================================
 
 void global_map::generate_map()
-{   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+{   unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator (seed);
     std::uniform_real_distribution<double> distribution(minimum_elevation,maximum_elevation-1);
     for(size_t i=0; i<rows;i++)
